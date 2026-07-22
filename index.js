@@ -885,10 +885,10 @@ actualizarTabla=function(){
 // INICIAR AUTOSCROLL
 //==============================================
 
-window.addEventListener(
+// window.addEventListener(
 
-    "load",
+//     "load",
 
-    iniciarAutoScroll
+//     iniciarAutoScroll
 
-);
+// );
