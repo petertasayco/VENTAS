@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ranking de Comisiones</title>
+
+    <link rel="stylesheet" href="index.css">
+
+    <!-- Librería para leer Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>📊 RANKING DE COMISIONES MENSUALES</h1>
+
+        <div class="ultima-actualizacion">
+            <span>Última actualización:</span>
+            <span id="ultimaActualizacion">Sin actualizar</span>
+        </div>
+
+    </header>
+
+    <!-- BOTONES -->
+
+    <section class="contenedor-botones">
+
+        <div class="cardSupervisor">
+
+            <button id="btnPeter" class="btnExcel">
+                📁 PETER TASAYCO
+            </button>
+
+            <input
+                type="file"
+                id="excelPeter"
+                accept=".xlsx,.xls"
+                hidden>
+
+            <div id="archivoPeter" class="archivo">
+                Sin archivo
+            </div>
+
+        </div>
+
+        <div class="cardSupervisor">
+
+            <button id="btnIsabel" class="btnExcel">
+                📁 ISABEL PEREYRA
+            </button>
+
+            <input
+                type="file"
+                id="excelIsabel"
+                accept=".xlsx,.xls"
+                hidden>
+
+            <div id="archivoIsabel" class="archivo">
+                Sin archivo
+            </div>
+
+        </div>
+
+        <div class="cardSupervisor">
+
+            <button id="btnJose" class="btnExcel">
+                📁 JOSE ALVAREZ
+            </button>
+
+            <input
+                type="file"
+                id="excelJose"
+                accept=".xlsx,.xls"
+                hidden>
+
+            <div id="archivoJose" class="archivo">
+                Sin archivo
+            </div>
+
+        </div>
+
+        <div class="cardSupervisor">
+
+            <button id="btnPedro" class="btnExcel">
+                📁 PEDRO LLAZA
+            </button>
+
+            <input
+                type="file"
+                id="excelPedro"
+                accept=".xlsx,.xls"
+                hidden>
+
+            <div id="archivoPedro" class="archivo">
+                Sin archivo
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- TABLA -->
+
+    <section class="tablaContainer">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ASESOR</th>
+                    <th>UP MOVIL</th>
+                    <th>MIGRACIONES</th>
+                    <th>UP HOGAR</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="data">
+
+                <!-- Se llena desde index.js -->
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <script src="index.js"></script>
+
+</body>
+
+</html>

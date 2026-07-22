@@ -1,0 +1,362 @@
+/* ===========================
+   GENERAL
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f4f4;
+    color:#222;
+}
+
+
+/* ===========================
+   HEADER
+=========================== */
+
+header{
+
+    background:#0033A0;
+    color:#fff;
+
+    padding:20px;
+
+    text-align:center;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.25);
+
+}
+
+header h1{
+
+    font-size:40px;
+
+    margin-bottom:10px;
+
+}
+
+.ultima-actualizacion{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+}
+
+
+/* ===========================
+   BOTONES
+=========================== */
+
+.contenedor-botones{
+
+    width:95%;
+
+    margin:30px auto;
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+    gap:20px;
+
+}
+
+.cardSupervisor{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    text-align:center;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.18);
+
+    transition:.25s;
+
+}
+
+.cardSupervisor:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.btnExcel{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    background:#0033A0;
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    transition:.3s;
+
+}
+
+.btnExcel:hover{
+
+    background:#00257a;
+
+}
+
+/* Cuando el archivo ya fue cargado */
+.btnExcel.cargado{
+
+    background:#00a651;
+
+}
+
+.btnExcel.cargado:hover{
+
+    background:#008f46;
+
+}
+
+.archivo{
+
+    margin-top:12px;
+
+    font-size:15px;
+
+    color:#555;
+
+    word-break:break-word;
+
+    min-height:22px;
+
+}
+
+
+/* ===========================
+   TABLA
+=========================== */
+
+.tablaContainer{
+
+    width:95%;
+
+    margin:20px auto 60px auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:white;
+
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+
+}
+
+thead{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:10;
+
+}
+
+th{
+
+    background:#FFDD00;
+
+    color:#000;
+
+    padding:15px;
+
+    font-size:28px;
+
+}
+
+td{
+
+    padding:14px;
+
+    text-align:center;
+
+    border-bottom:1px solid #ddd;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+tbody tr:hover{
+
+    background:#f7f7f7;
+
+}
+
+td:first-child{
+
+    text-align:left;
+
+}
+
+
+/* ===========================
+   CABECERA SUPERVISOR
+=========================== */
+
+.supervisor{
+
+    background:#0033A0 !important;
+
+    color:white;
+
+    font-size:28px;
+
+    font-weight:bold;
+
+}
+
+.supervisor td{
+
+    padding:15px;
+
+}
+
+
+/* ===========================
+   TOTAL SUPERVISOR
+=========================== */
+
+.totalSupervisor{
+
+    background:#d60000 !important;
+
+    color:white;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+.totalSupervisor td{
+
+    padding:15px;
+
+}
+
+
+/* ===========================
+   SCROLL
+=========================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#ddd;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#0033A0;
+
+    border-radius:20px;
+
+}
+
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+    header h1{
+
+        font-size:30px;
+
+    }
+
+    th{
+
+        font-size:20px;
+
+    }
+
+    td{
+
+        font-size:18px;
+
+    }
+
+    .btnExcel{
+
+        font-size:18px;
+
+    }
+
+}
+
+@media(max-width:600px){
+
+    header h1{
+
+        font-size:24px;
+
+    }
+
+    .ultima-actualizacion{
+
+        font-size:16px;
+
+    }
+
+    th{
+
+        font-size:16px;
+
+    }
+
+    td{
+
+        font-size:15px;
+
+        padding:10px;
+
+    }
+
+    .btnExcel{
+
+        font-size:16px;
+
+        padding:12px;
+
+    }
+
+}
