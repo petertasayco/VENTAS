@@ -332,10 +332,17 @@ function procesarDatos(){
             const tipo=
                 String(fila.tipoPlan)
                 .toUpperCase();
+                const anterior =
+parseFloat(fila.tarifaAnterior) || 0;
+
+const nueva =
+parseFloat(fila.tarifaNueva) || 0;
+
+const diferencia = nueva - anterior;
 
             if(tipo.includes("MOVIL")){
 
-                asesores[asesor].upMovil++;
+                 asesores[asesor].upMovil += diferencia;
 
             }
 
@@ -347,7 +354,7 @@ function procesarDatos(){
 
             else if(tipo.includes("HOGAR")){
 
-                asesores[asesor].upHogar++;
+                asesores[asesor].upHogar += diferencia;
 
             }
 
@@ -365,9 +372,20 @@ function procesarDatos(){
 
             .sort((a,b)=>{
 
-                return b.total-a.total;
+    // 1. Mayor Upgrade Móvil
+    if(b.upMovil !== a.upMovil){
+        return b.upMovil - a.upMovil;
+    }
 
-            });
+    // 2. Si empatan, mayor Migraciones
+    if(b.migraciones !== a.migraciones){
+        return b.migraciones - a.migraciones;
+    }
+
+    // 3. Si empatan, mayor Upgrade Hogar
+    return b.upHogar - a.upHogar;
+
+});
 
         //----------------------------------------------------
         // TOTALES
@@ -612,84 +630,84 @@ function dibujarRankingSupervisores(){
 // AUTOSCROLL
 //==============================================
 
-function iniciarAutoScroll(){
+// function iniciarAutoScroll(){
 
-    setTimeout(autoScroll,3000);
+//     setTimeout(autoScroll,3000);
 
-}
+// }
 
-function autoScroll(){
+// function autoScroll(){
 
-    const duracion=20000;
+//     const duracion=20000;
 
-    const alturaTotal=
+//     const alturaTotal=
 
-        document.documentElement.scrollHeight-
-        window.innerHeight;
+//         document.documentElement.scrollHeight-
+//         window.innerHeight;
 
-    if(alturaTotal<=0){
+//     if(alturaTotal<=0){
 
-        setTimeout(autoScroll,3000);
+//         setTimeout(autoScroll,3000);
 
-        return;
+//         return;
 
-    }
+//     }
 
-    const inicio=Date.now();
+//     const inicio=Date.now();
 
-    function animar(){
+//     function animar(){
 
-        const progreso=Math.min(
+//         const progreso=Math.min(
 
-            (Date.now()-inicio)/duracion,
+//             (Date.now()-inicio)/duracion,
 
-            1
+//             1
 
-        );
+//         );
 
-        window.scrollTo(
+//         window.scrollTo(
 
-            0,
+//             0,
 
-            alturaTotal*progreso
+//             alturaTotal*progreso
 
-        );
+//         );
 
-        if(progreso<1){
+//         if(progreso<1){
 
-            requestAnimationFrame(animar);
+//             requestAnimationFrame(animar);
 
-        }
+//         }
 
-        else{
+//         else{
 
-            setTimeout(()=>{
+//             setTimeout(()=>{
 
-                window.scrollTo({
+//                 window.scrollTo({
 
-                    top:0,
+//                     top:0,
 
-                    behavior:"smooth"
+//                     behavior:"smooth"
 
-                });
+//                 });
 
-                setTimeout(
+//                 setTimeout(
 
-                    autoScroll,
+//                     autoScroll,
 
-                    2500
+//                     2500
 
-                );
+//                 );
 
-            },3000);
+//             },3000);
 
-        }
+//         }
 
-    }
+//     }
 
-    animar();
+//     animar();
 
-}
+// }
 
 
 
