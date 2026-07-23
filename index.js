@@ -2,8 +2,16 @@
  *
  * RANKING DE COMISIONES
  * PARTE 1
+ * CONFIGURACIÓN E INICIO
  *
  **************************************************/
+
+//===========================================
+// CONFIGURACIÓN
+//===========================================
+
+const API_URL = "https://script.google.com/macros/s/AKfycbyg4sqmobiR7iNmCL5eaGEXsxH8IR78Yhl_ZoiTrNKnto5pvlzoWnRFG24-MlKhPFO29A/exec";
+
 
 //===========================================
 // DATOS
@@ -20,211 +28,131 @@ const datosSupervisores = {
 
 
 //===========================================
-// CONFIGURACIÓN
-//===========================================
-
-const configuracion = {
-
-    "PETER TASAYCO":{
-
-        boton:"btnPeter",
-        input:"excelPeter",
-        archivo:"archivoPeter"
-
-    },
-
-    "ISABEL PEREYRA":{
-
-        boton:"btnIsabel",
-        input:"excelIsabel",
-        archivo:"archivoIsabel"
-
-    },
-
-    "JOSE ALVAREZ":{
-
-        boton:"btnJose",
-        input:"excelJose",
-        archivo:"archivoJose"
-
-    },
-
-    "PEDRO LLAZA":{
-
-        boton:"btnPedro",
-        input:"excelPedro",
-        archivo:"archivoPedro"
-
-    }
-
-};
-
-
-//===========================================
-// INICIAR
+// INICIO
 //===========================================
 
 window.addEventListener("load", iniciar);
 
 
-
 function iniciar(){
 
-    Object.keys(configuracion).forEach(supervisor=>{
-
-        const info=configuracion[supervisor];
-
-        const boton=document.getElementById(info.boton);
-
-        const input=document.getElementById(info.input);
-
-        boton.onclick=()=>{
-
-            input.click();
-
-        };
-
-        input.addEventListener("change",e=>{
-
-            cargarExcel(e,supervisor);
-
-        });
-
-    });
+    cargarDatosAPI();
 
 }
 
 
-
 //===========================================
-// CARGAR EXCEL
+// CONEXIÓN GOOGLE SHEETS
 //===========================================
 
-function cargarExcel(evento,supervisor){
+async function cargarDatosAPI(){
 
-    const archivo=evento.target.files[0];
+    try{
 
-    if(!archivo){
+        const respuesta = await fetch(API_URL);
 
-        return;
+        if(!respuesta.ok){
 
-    }
-
-    const lector=new FileReader();
-
-    lector.onload=function(e){
-
-        const datos=new Uint8Array(e.target.result);
-
-        const libro=XLSX.read(datos,{
-
-            type:"array"
-
-        });
-
-        const hoja=
-
-            libro.Sheets[
-                libro.SheetNames[0]
-            ];
-
-        const json=
-
-            XLSX.utils.sheet_to_json(
-
-                hoja,
-
-                {
-
-                    defval:""
-
-                }
-
+            throw new Error(
+                "No fue posible obtener los datos."
             );
 
-        datosSupervisores[supervisor]=json;
+        }
 
-        actualizarBoton(
+        const datos = await respuesta.json();
 
-            supervisor,
+        if(!Array.isArray(datos)){
 
-            archivo.name
+            throw new Error(
+                "La API no devolvió un arreglo válido."
+            );
 
+        }
+
+        console.log(
+            `Datos recibidos: ${datos.length}`
         );
+
+        separarDatos(datos);
 
         procesarDatos();
 
-    };
-
-    lector.readAsArrayBuffer(archivo);
-
-}
-
-
-
-//===========================================
-// ACTUALIZAR BOTÓN
-//===========================================
-
-function actualizarBoton(
-
-    supervisor,
-
-    archivo
-
-){
-
-    const info=configuracion[supervisor];
-
-    document
-
-        .getElementById(info.boton)
-
-        .classList.add(
-
-            "cargado"
-
-        );
-
-    document
-
-        .getElementById(info.archivo)
-
-        .innerHTML=archivo;
-
-    document
-
-        .getElementById(
-
+        document.getElementById(
             "ultimaActualizacion"
+        ).textContent =
+        new Date().toLocaleString("es-PE");
 
-        )
+    }
+    catch(error){
 
-        .innerHTML=
-
-        new Date()
-
-        .toLocaleString(
-
-            "es-PE"
-
+        console.error(
+            "Error cargando datos:",
+            error
         );
 
-}
+        document.getElementById(
+            "ultimaActualizacion"
+        ).textContent =
+        "Error al actualizar";
 
-
-
-//===========================================
-// FUNCIONES VACÍAS
-//===========================================
-
-// Se implementarán en la Parte 2
-
-function procesarDatos(){
+    }
 
 }
 
-function actualizarTabla(){
+
+//===========================================
+// SEPARAR DATOS POR SUPERVISOR
+//===========================================
+
+function separarDatos(datos){
+
+    // Limpiar datos anteriores
+
+    Object.keys(datosSupervisores).forEach(supervisor=>{
+
+        datosSupervisores[supervisor]=[];
+
+    });
+
+    datos.forEach(fila=>{
+
+        const archivo = String(
+            fila["Archivo Origen"] || ""
+        ).toUpperCase();
+
+        if(archivo.includes("PETER")){
+
+            datosSupervisores[
+                "PETER TASAYCO"
+            ].push(fila);
+
+        }
+
+        else if(archivo.includes("ISABEL")){
+
+            datosSupervisores[
+                "ISABEL PEREYRA"
+            ].push(fila);
+
+        }
+
+        else if(archivo.includes("JOSE")){
+
+            datosSupervisores[
+                "JOSE ALVAREZ"
+            ].push(fila);
+
+        }
+
+        else if(archivo.includes("PEDRO")){
+
+            datosSupervisores[
+                "PEDRO LLAZA"
+            ].push(fila);
+
+        }
+
+    });
 
 }
 
@@ -237,17 +165,17 @@ function actualizarTabla(){
 
 let rankingSupervisores = {};
 
-function procesarDatos(){
+function procesarDatos(fechaSeleccionada = null){
 
-    rankingSupervisores={};
+    rankingSupervisores = {};
 
     Object.keys(datosSupervisores).forEach(supervisor=>{
 
-        const filas=datosSupervisores[supervisor];
+        const filas = datosSupervisores[supervisor];
 
-        const asesores={};
+        const asesores = {};
 
-        const ordenes=new Set();
+        const ordenes = new Set();
 
         filas.forEach(fila=>{
 
@@ -256,8 +184,9 @@ function procesarDatos(){
             //------------------------------------------------
 
             if(
-                String(fila.estadoCredito).trim().toUpperCase()
-                !="APROBADO"
+                String(fila.estadoCredito || "")
+                .trim()
+                .toUpperCase() !== "APROBADO"
             ){
                 return;
             }
@@ -267,28 +196,48 @@ function procesarDatos(){
             //------------------------------------------------
 
             if(
-                String(fila.estadoActual).trim().toUpperCase()
-                !="VENTA CONCRETADA"
+                String(fila.estadoActual || "")
+                .trim()
+                .toUpperCase() !== "VENTA CONCRETADA"
             ){
                 return;
             }
 
             //------------------------------------------------
-            // EVITAR DUPLICADOS
+            // FILTRO POR FECHA
+            // (se utilizará más adelante)
             //------------------------------------------------
 
-            const nroOrden=
-                String(fila.nroOrden).trim();
+            if(fechaSeleccionada){
+
+                const fechaVenta = String(
+                    fila.fechaVenta || ""
+                ).substring(0,10);
+
+                if(fechaVenta !== fechaSeleccionada){
+
+                    return;
+
+                }
+
+            }
+
+            //------------------------------------------------
+            // EVITAR ÓRDENES DUPLICADAS
+            //------------------------------------------------
+
+            const nroOrden = String(
+                fila.nroOrden || ""
+            ).trim();
 
             if(
-                nroOrden!=""
-                &&
+                nroOrden !== "" &&
                 ordenes.has(nroOrden)
             ){
                 return;
             }
 
-            if(nroOrden!=""){
+            if(nroOrden !== ""){
 
                 ordenes.add(nroOrden);
 
@@ -298,10 +247,15 @@ function procesarDatos(){
             // ASESOR
             //------------------------------------------------
 
-            const asesor=
-                String(fila["Registrado por"]).trim();
+            const asesor = String(
+                fila["Registrado por"] || ""
+            ).trim();
 
-            if(asesor=="") return;
+            if(asesor === ""){
+
+                return;
+
+            }
 
             //------------------------------------------------
             // CREAR ASESOR
@@ -326,23 +280,29 @@ function procesarDatos(){
             }
 
             //------------------------------------------------
+            // DIFERENCIA
+            //------------------------------------------------
+
+            const tarifaAnterior =
+                parseFloat(fila.tarifaAnterior) || 0;
+
+            const tarifaNueva =
+                parseFloat(fila.tarifaNueva) || 0;
+
+            const diferencia =
+                Math.max(0, tarifaNueva - tarifaAnterior);
+
+            //------------------------------------------------
             // TIPO PLAN
             //------------------------------------------------
 
-            const tipo=
-                String(fila.tipoPlan)
-                .toUpperCase();
-                const anterior =
-parseFloat(fila.tarifaAnterior) || 0;
-
-const nueva =
-parseFloat(fila.tarifaNueva) || 0;
-
-const diferencia = nueva - anterior;
+            const tipo = String(
+                fila.tipoPlan || ""
+            ).toUpperCase();
 
             if(tipo.includes("MOVIL")){
 
-                 asesores[asesor].upMovil += diferencia;
+                asesores[asesor].upMovil += diferencia;
 
             }
 
@@ -366,48 +326,39 @@ const diferencia = nueva - anterior;
         // ORDENAR ASESORES
         //----------------------------------------------------
 
-        const lista=
+        const lista = Object.values(asesores).sort((a,b)=>{
 
-            Object.values(asesores)
+            if(b.upMovil !== a.upMovil){
 
-            .sort((a,b)=>{
+                return b.upMovil - a.upMovil;
 
-    // 1. Mayor Upgrade Móvil
-    if(b.upMovil !== a.upMovil){
-        return b.upMovil - a.upMovil;
-    }
+            }
 
-    // 2. Si empatan, mayor Migraciones
-    if(b.migraciones !== a.migraciones){
-        return b.migraciones - a.migraciones;
-    }
+            if(b.migraciones !== a.migraciones){
 
-    // 3. Si empatan, mayor Upgrade Hogar
-    return b.upHogar - a.upHogar;
+                return b.migraciones - a.migraciones;
 
-});
+            }
+
+            return b.upHogar - a.upHogar;
+
+        });
 
         //----------------------------------------------------
         // TOTALES
         //----------------------------------------------------
 
-        let totalMovil=0;
-
-        let totalMigraciones=0;
-
-        let totalHogar=0;
-
-        let totalVentas=0;
+        let totalMovil = 0;
+        let totalMigraciones = 0;
+        let totalHogar = 0;
+        let totalVentas = 0;
 
         lista.forEach(item=>{
 
-            totalMovil+=item.upMovil;
-
-            totalMigraciones+=item.migraciones;
-
-            totalHogar+=item.upHogar;
-
-            totalVentas+=item.total;
+            totalMovil += item.upMovil;
+            totalMigraciones += item.migraciones;
+            totalHogar += item.upHogar;
+            totalVentas += item.total;
 
         });
 
@@ -444,11 +395,11 @@ const diferencia = nueva - anterior;
 
 function actualizarTabla(){
 
-    let html="";
+    let html = "";
 
     Object.keys(rankingSupervisores).forEach(supervisor=>{
 
-        const grupo=rankingSupervisores[supervisor];
+        const grupo = rankingSupervisores[supervisor];
 
         if(!grupo) return;
 
@@ -456,7 +407,7 @@ function actualizarTabla(){
         // CABECERA SUPERVISOR
         //--------------------------------------
 
-        html+=`
+        html += `
 
         <tr class="supervisor">
 
@@ -476,27 +427,25 @@ function actualizarTabla(){
 
         grupo.asesores.forEach((asesor,index)=>{
 
-            let medalla="";
+            let medalla = "";
 
-            if(index==0){
+            switch(index){
 
-                medalla="🥇 ";
+                case 0:
+                    medalla = "🥇 ";
+                    break;
 
-            }
+                case 1:
+                    medalla = "🥈 ";
+                    break;
 
-            else if(index==1){
-
-                medalla="🥈 ";
-
-            }
-
-            else if(index==2){
-
-                medalla="🥉 ";
+                case 2:
+                    medalla = "🥉 ";
+                    break;
 
             }
 
-            html+=`
+            html += `
 
             <tr>
 
@@ -508,7 +457,7 @@ function actualizarTabla(){
 
                 <td>
 
-                    ${asesor.upMovil}
+                    ${asesor.upMovil.toFixed(2)}
 
                 </td>
 
@@ -520,7 +469,7 @@ function actualizarTabla(){
 
                 <td>
 
-                    ${asesor.upHogar}
+                    ${asesor.upHogar.toFixed(2)}
 
                 </td>
 
@@ -534,7 +483,7 @@ function actualizarTabla(){
         // TOTAL SUPERVISOR
         //--------------------------------------
 
-        html+=`
+        html += `
 
         <tr class="totalSupervisor">
 
@@ -545,7 +494,7 @@ function actualizarTabla(){
                 |
 
                 UP MOVIL:
-                ${grupo.totalMovil}
+                ${grupo.totalMovil.toFixed(2)}
 
                 |
 
@@ -555,7 +504,7 @@ function actualizarTabla(){
                 |
 
                 UP HOGAR:
-                ${grupo.totalHogar}
+                ${grupo.totalHogar.toFixed(2)}
 
                 |
 
@@ -570,55 +519,12 @@ function actualizarTabla(){
 
     });
 
-    document.getElementById("data").innerHTML=html;
+    document.getElementById("data").innerHTML = html;
 
     dibujarRankingSupervisores();
 
 }
 
-
-
-/***************************************************
- *
- * RANKING SUPERVISORES
- *
- **************************************************/
-
-function dibujarRankingSupervisores(){
-
-    const ranking=
-
-        Object.entries(rankingSupervisores)
-
-        .sort((a,b)=>{
-
-            return b[1].totalVentas-a[1].totalVentas;
-
-        });
-
-    console.clear();
-
-    console.log("========= RANKING =========");
-
-    ranking.forEach((item,index)=>{
-
-        console.log(
-
-            (index+1)+".",
-
-            item[0],
-
-            "-",
-
-            item[1].totalVentas,
-
-            "ventas"
-
-        );
-
-    });
-
-}
 /***************************************************
  *
  * PARTE 4
@@ -627,88 +533,16 @@ function dibujarRankingSupervisores(){
  **************************************************/
 
 //==============================================
-// AUTOSCROLL
+// AUTOSCROLL (Opcional)
 //==============================================
 
 // function iniciarAutoScroll(){
-
 //     setTimeout(autoScroll,3000);
-
 // }
 
 // function autoScroll(){
-
-//     const duracion=20000;
-
-//     const alturaTotal=
-
-//         document.documentElement.scrollHeight-
-//         window.innerHeight;
-
-//     if(alturaTotal<=0){
-
-//         setTimeout(autoScroll,3000);
-
-//         return;
-
-//     }
-
-//     const inicio=Date.now();
-
-//     function animar(){
-
-//         const progreso=Math.min(
-
-//             (Date.now()-inicio)/duracion,
-
-//             1
-
-//         );
-
-//         window.scrollTo(
-
-//             0,
-
-//             alturaTotal*progreso
-
-//         );
-
-//         if(progreso<1){
-
-//             requestAnimationFrame(animar);
-
-//         }
-
-//         else{
-
-//             setTimeout(()=>{
-
-//                 window.scrollTo({
-
-//                     top:0,
-
-//                     behavior:"smooth"
-
-//                 });
-
-//                 setTimeout(
-
-//                     autoScroll,
-
-//                     2500
-
-//                 );
-
-//             },3000);
-
-//         }
-
-//     }
-
-//     animar();
-
+//     ...
 // }
-
 
 
 //==============================================
@@ -717,178 +551,88 @@ function dibujarRankingSupervisores(){
 
 function animarTabla(){
 
-    const tabla=document.querySelector("table");
+    const tabla = document.querySelector("table");
 
     if(!tabla) return;
 
-    tabla.style.opacity="0";
+    tabla.style.transition = "none";
+    tabla.style.opacity = "0";
+    tabla.style.transform = "scale(.98)";
 
-    tabla.style.transform="scale(.98)";
+    requestAnimationFrame(()=>{
 
-    setTimeout(()=>{
+        tabla.style.transition =
+            "opacity .4s ease, transform .4s ease";
 
-        tabla.style.transition=".4s";
+        tabla.style.opacity = "1";
+        tabla.style.transform = "scale(1)";
 
-        tabla.style.opacity="1";
-
-        tabla.style.transform="scale(1)";
-
-    },50);
+    });
 
 }
 
 
-
 //==============================================
-// TARJETAS SUPERIORES
+// TOTALES GENERALES
 //==============================================
 
 function obtenerTotalesGenerales(){
 
-    let movil=0;
+    let movil = 0;
+    let migra = 0;
+    let hogar = 0;
+    let total = 0;
 
-    let migra=0;
+    Object.values(rankingSupervisores).forEach(item=>{
 
-    let hogar=0;
-
-    let total=0;
-
-    Object.values(rankingSupervisores)
-
-    .forEach(item=>{
-
-        movil+=item.totalMovil;
-
-        migra+=item.totalMigraciones;
-
-        hogar+=item.totalHogar;
-
-        total+=item.totalVentas;
+        movil += item.totalMovil;
+        migra += item.totalMigraciones;
+        hogar += item.totalHogar;
+        total += item.totalVentas;
 
     });
 
-    console.log("TOTAL GENERAL");
+    console.log("========== TOTAL GENERAL ==========");
+    console.log("UP MOVIL:", movil.toFixed(2));
+    console.log("MIGRACIONES:", migra);
+    console.log("UP HOGAR:", hogar.toFixed(2));
+    console.log("TOTAL VENTAS:", total);
 
-    console.log("UP MOVIL:",movil);
+    return{
 
-    console.log("MIGRACIONES:",migra);
+        movil,
+        migra,
+        hogar,
+        total
 
-    console.log("UP HOGAR:",hogar);
-
-    console.log("TOTAL:",total);
-
-}
-
-
-
-//==============================================
-// CONTADOR ARCHIVOS
-//==============================================
-
-function archivosCargados(){
-
-    let total=0;
-
-    Object.keys(datosSupervisores)
-
-    .forEach(s=>{
-
-        if(
-
-            datosSupervisores[s].length>0
-
-        ){
-
-            total++;
-
-        }
-
-    });
-
-    return total;
+    };
 
 }
 
 
-
 //==============================================
-// VALIDAR SI FALTA ALGÚN EXCEL
-//==============================================
-
-function validarCarga(){
-
-    const cargados=
-
-        archivosCargados();
-
-    if(cargados<4){
-
-        console.log(
-
-            "Faltan",
-
-            4-cargados,
-
-            "archivos."
-
-        );
-
-    }
-
-    else{
-
-        console.log(
-
-            "Todos los supervisores cargaron su Excel."
-
-        );
-
-    }
-
-}
-
-
-
-//==============================================
-// ACTUALIZACIÓN AUTOMÁTICA
+// ACTUALIZAR DASHBOARD
 //==============================================
 
 function actualizarDashboard(){
 
     animarTabla();
 
-    validarCarga();
-
     obtenerTotalesGenerales();
 
 }
 
 
-
 //==============================================
-// MODIFICAR ACTUALIZAR TABLA
+// EXTENDER ACTUALIZAR TABLA
 //==============================================
 
-const actualizarTablaOriginal=actualizarTabla;
+const actualizarTablaOriginal = actualizarTabla;
 
-actualizarTabla=function(){
+actualizarTabla = function(){
 
     actualizarTablaOriginal();
 
     actualizarDashboard();
 
-}
-
-
-
-//==============================================
-// INICIAR AUTOSCROLL
-//==============================================
-
-// window.addEventListener(
-
-//     "load",
-
-//     iniciarAutoScroll
-
-// );
+};

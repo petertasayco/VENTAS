@@ -6,136 +6,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ranking de Comisiones</title>
+    <title>Consulta de Ventas</title>
 
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="ventas.css">
 
-    <!-- Librería para leer Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 </head>
 
 <body>
 
-    <header>
+<header>
 
-        <h1>📊 RANKING DE COMISIONES MENSUALES</h1>
+    <h1>📊 CONSULTA DE VENTAS</h1>
 
-        <div class="ultima-actualizacion">
-            <span>Última actualización:</span>
-            <span id="ultimaActualizacion">Sin actualizar</span>
-        </div>
+    <div class="ultima-actualizacion">
+        <span>Última actualización:</span>
+        <span id="ultimaActualizacion">Sin actualizar</span>
+    </div>
 
-    </header>
+</header>
 
-    <!-- BOTONES -->
+<section class="contenedorCarga">
 
-    <section class="contenedor-botones">
+    <button id="btnExcel" class="btnExcel">
+        📁 Cargar Excel
+    </button>
 
-        <div class="cardSupervisor">
+    <input
+        type="file"
+        id="excel"
+        accept=".xlsx,.xls"
+        hidden>
 
-            <button id="btnPeter" class="btnExcel">
-                📁 PETER TASAYCO
-            </button>
+    <div id="nombreArchivo" class="archivo">
+        Sin archivo
+    </div>
 
-            <input
-                type="file"
-                id="excelPeter"
-                accept=".xlsx,.xls"
-                hidden>
+</section>
 
-            <div id="archivoPeter" class="archivo">
-                Sin archivo
-            </div>
 
-        </div>
+<section class="filtros">
 
-        <div class="cardSupervisor">
+    <div class="grupoFiltro">
 
-            <button id="btnIsabel" class="btnExcel">
-                📁 ISABEL PEREYRA
-            </button>
+        <label>Fecha</label>
 
-            <input
-                type="file"
-                id="excelIsabel"
-                accept=".xlsx,.xls"
-                hidden>
+        <select id="filtroFecha">
 
-            <div id="archivoIsabel" class="archivo">
-                Sin archivo
-            </div>
+            <option value="TODOS">
+                Todas las fechas
+            </option>
 
-        </div>
+        </select>
 
-        <div class="cardSupervisor">
+    </div>
 
-            <button id="btnJose" class="btnExcel">
-                📁 JOSE ALVAREZ
-            </button>
+    <div class="grupoFiltro">
 
-            <input
-                type="file"
-                id="excelJose"
-                accept=".xlsx,.xls"
-                hidden>
+        <label>Asesor</label>
 
-            <div id="archivoJose" class="archivo">
-                Sin archivo
-            </div>
+        <select id="filtroAsesor">
 
-        </div>
+            <option value="TODOS">
+                Todos
+            </option>
 
-        <div class="cardSupervisor">
+        </select>
 
-            <button id="btnPedro" class="btnExcel">
-                📁 PEDRO LLAZA
-            </button>
+    </div>
 
-            <input
-                type="file"
-                id="excelPedro"
-                accept=".xlsx,.xls"
-                hidden>
+    <div class="grupoFiltro">
 
-            <div id="archivoPedro" class="archivo">
-                Sin archivo
-            </div>
+        <label>Tipo Venta</label>
 
-        </div>
+        <select id="filtroTipo">
 
-    </section>
+            <option value="TODOS">
+                Todos
+            </option>
 
-    <!-- TABLA -->
+            <option value="MIGRACION">
+                Migración
+            </option>
 
-    <section class="tablaContainer">
+            <option value="UP GRADE MOVIL">
+                Upgrade Móvil
+            </option>
 
-        <table>
+            <option value="UP GRADE HOGAR">
+                Upgrade Hogar
+            </option>
 
-            <thead>
+        </select>
 
-                <tr>
+    </div>
 
-                    <th>ASESOR</th>
-                    <th>UP MOVIL</th>
-                    <th>MIGRACIONES</th>
-                    <th>UP HOGAR</th>
+</section>
 
-                </tr>
 
-            </thead>
+<section class="tablaContainer">
 
-            <tbody id="data">
+<table>
 
-                <!-- Se llena desde index.js -->
+<thead>
 
-            </tbody>
+<tr>
 
-        </table>
+<th>Fecha</th>
+<th>Asesor</th>
+<th>Cliente</th>
+<th>Tipo Venta</th>
+<th>Diferencia</th>
+<th>Estado Crédito</th>
 
-    </section>
+</tr>
 
-    <script src="index.js"></script>
+</thead>
+
+<tbody id="tablaVentas">
+
+</tbody>
+
+</table>
+
+</section>
+
+<script src="ventas.js"></script>
 
 </body>
 
