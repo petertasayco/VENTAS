@@ -12,7 +12,6 @@
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyg4sqmobiR7iNmCL5eaGEXsxH8IR78Yhl_ZoiTrNKnto5pvlzoWnRFG24-MlKhPFO29A/exec";
 
-
 //===========================================
 // DATOS
 //===========================================
