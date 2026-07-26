@@ -730,8 +730,6 @@ function dibujarProduccionAsesor(){
 // EVOLUCIÓN DIARIA
 //===========================================
 
-let graficoEvolucion;
-
 
 function dibujarEvolucionDiaria(){
 
