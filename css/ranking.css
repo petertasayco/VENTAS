@@ -1,0 +1,417 @@
+/* ==========================================================
+   CONTENEDOR
+========================================================== */
+
+.contenedor-ranking{
+
+    margin-top:30px;
+
+}
+
+/* ==========================================================
+   RESUMEN
+========================================================== */
+
+.contenedor-resumen{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:20px;
+
+    margin:30px 0;
+
+}
+
+.card-kpi{
+
+    background:var(--color-blanco);
+
+    border-radius:var(--radio);
+
+    box-shadow:var(--sombra);
+
+    padding:22px;
+
+    transition:.25s;
+
+    text-align:center;
+
+    border-top:5px solid var(--color-primario);
+
+}
+
+.card-kpi:hover{
+
+    transform:translateY(-5px);
+
+}
+
+.card-kpi h3{
+
+    color:var(--color-gris);
+
+    font-size:15px;
+
+    margin-bottom:10px;
+
+}
+
+.card-kpi p{
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    color:var(--color-primario);
+
+}
+
+/* ==========================================================
+   TABLA
+========================================================== */
+
+.tabla-ranking{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:white;
+
+    border-radius:var(--radio);
+
+    overflow:hidden;
+
+    box-shadow:var(--sombra);
+
+}
+
+.tabla-ranking thead{
+
+    background:var(--color-primario);
+
+    color:white;
+
+}
+
+.tabla-ranking th{
+
+    padding:16px;
+
+    text-align:left;
+
+    font-size:15px;
+
+}
+
+.tabla-ranking td{
+
+    padding:15px;
+
+    border-bottom:1px solid var(--color-borde);
+
+    vertical-align:middle;
+
+}
+
+.tabla-ranking tbody tr{
+
+    transition:.25s;
+
+}
+
+.tabla-ranking tbody tr:hover{
+
+    background:#F5FAFF;
+
+}
+
+/* ==========================================================
+   POSICIONES
+========================================================== */
+
+.posicion{
+
+    width:55px;
+
+    text-align:center;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+}
+
+.oro{
+
+    color:#D4AF37;
+
+}
+
+.plata{
+
+    color:#9E9E9E;
+
+}
+
+.bronce{
+
+    color:#B87333;
+
+}
+
+/* ==========================================================
+   NOMBRE DEL ASESOR
+========================================================== */
+
+.nombre-asesor{
+
+    font-weight:700;
+
+    color:var(--color-texto);
+
+}
+
+.nombre-asesor a{
+
+    color:inherit;
+
+}
+
+.nombre-asesor a:hover{
+
+    color:var(--color-primario);
+
+}
+
+/* ==========================================================
+   TOTAL
+========================================================== */
+
+.total{
+
+    font-size:17px;
+
+    font-weight:bold;
+
+    color:var(--color-primario);
+
+}
+
+/* ==========================================================
+   BOTÓN VER
+========================================================== */
+
+.btn-ver{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:8px 16px;
+
+    border-radius:8px;
+
+    background:var(--color-secundario);
+
+    color:white;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.btn-ver:hover{
+
+    background:var(--color-primario);
+
+}
+
+/* ==========================================================
+   BUSCADOR
+========================================================== */
+
+.buscador{
+
+    flex:1;
+
+}
+
+.buscador input{
+
+    width:100%;
+
+}
+
+/* ==========================================================
+   PAGINACIÓN
+========================================================== */
+
+.paginacion{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-top:30px;
+
+}
+
+.paginacion span{
+
+    font-weight:600;
+
+}
+
+/* ==========================================================
+   TOP 3
+========================================================== */
+
+.top1{
+
+    background:#FFF8E5;
+
+}
+
+.top2{
+
+    background:#F8F8F8;
+
+}
+
+.top3{
+
+    background:#FFF1E7;
+
+}
+
+.top1:hover{
+
+    background:#FFF3D1 !important;
+
+}
+
+.top2:hover{
+
+    background:#F1F1F1 !important;
+
+}
+
+.top3:hover{
+
+    background:#FFE7D6 !important;
+
+}
+
+/* ==========================================================
+   ANIMACIÓN
+========================================================== */
+
+.tabla-ranking tbody tr{
+
+    animation:fadeRanking .35s ease;
+
+}
+
+@keyframes fadeRanking{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(10px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:1200px){
+
+    .contenedor-resumen{
+
+        grid-template-columns:repeat(3,1fr);
+
+    }
+
+}
+
+@media(max-width:900px){
+
+    .contenedor-resumen{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .contenedor-resumen{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .tabla-ranking{
+
+        display:block;
+
+        overflow-x:auto;
+
+        white-space:nowrap;
+
+    }
+
+    .tabla-ranking th,
+
+    .tabla-ranking td{
+
+        padding:12px;
+
+    }
+
+}
+
+@media(max-width:480px){
+
+    .card-kpi{
+
+        padding:18px;
+
+    }
+
+    .card-kpi p{
+
+        font-size:24px;
+
+    }
+
+    .posicion{
+
+        font-size:18px;
+
+    }
+
+}

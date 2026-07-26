@@ -1,0 +1,569 @@
+/* ==========================================================
+   TARJETAS
+========================================================== */
+
+.card{
+
+    background:var(--color-blanco);
+
+    border-radius:var(--radio);
+
+    box-shadow:var(--sombra);
+
+    padding:20px;
+
+    transition:.25s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-4px);
+
+}
+
+/* ==========================================================
+   BOTONES
+========================================================== */
+
+.btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    padding:10px 20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.btn-primary{
+
+    background:var(--color-primario);
+
+    color:white;
+
+}
+
+.btn-primary:hover{
+
+    background:#004A89;
+
+}
+
+.btn-success{
+
+    background:var(--color-exito);
+
+    color:white;
+
+}
+
+.btn-success:hover{
+
+    filter:brightness(.9);
+
+}
+
+.btn-danger{
+
+    background:var(--color-peligro);
+
+    color:white;
+
+}
+
+.btn-danger:hover{
+
+    filter:brightness(.9);
+
+}
+
+.btn-warning{
+
+    background:var(--color-alerta);
+
+    color:white;
+
+}
+
+.btn-warning:hover{
+
+    filter:brightness(.9);
+
+}
+
+.btn-outline{
+
+    background:white;
+
+    color:var(--color-primario);
+
+    border:2px solid var(--color-primario);
+
+}
+
+.btn-outline:hover{
+
+    background:var(--color-primario);
+
+    color:white;
+
+}
+
+/* ==========================================================
+   INPUTS
+========================================================== */
+
+.input{
+
+    width:100%;
+
+    padding:10px 14px;
+
+    border:1px solid var(--color-borde);
+
+    border-radius:8px;
+
+    font-size:15px;
+
+    transition:.2s;
+
+}
+
+.input:focus{
+
+    outline:none;
+
+    border-color:var(--color-secundario);
+
+}
+
+/* ==========================================================
+   SELECT
+========================================================== */
+
+.select{
+
+    width:100%;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    border:1px solid var(--color-borde);
+
+    background:white;
+
+}
+
+/* ==========================================================
+   BADGES
+========================================================== */
+
+.badge{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+}
+
+.badge-success{
+
+    background:#D5F5E3;
+
+    color:#1E8449;
+
+}
+
+.badge-danger{
+
+    background:#FADBD8;
+
+    color:#922B21;
+
+}
+
+.badge-warning{
+
+    background:#FCF3CF;
+
+    color:#9A7D0A;
+
+}
+
+.badge-info{
+
+    background:#D6EAF8;
+
+    color:#21618C;
+
+}
+
+/* ==========================================================
+   ALERTAS
+========================================================== */
+
+.alert{
+
+    padding:15px 20px;
+
+    border-radius:8px;
+
+    margin:15px 0;
+
+    font-weight:600;
+
+}
+
+.alert-success{
+
+    background:#D5F5E3;
+
+    color:#1E8449;
+
+}
+
+.alert-danger{
+
+    background:#FADBD8;
+
+    color:#922B21;
+
+}
+
+.alert-warning{
+
+    background:#FCF3CF;
+
+    color:#9A7D0A;
+
+}
+
+.alert-info{
+
+    background:#D6EAF8;
+
+    color:#21618C;
+
+}
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+.modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:1000;
+
+}
+
+.modal.oculto{
+
+    display:none;
+
+}
+
+.modal-contenido{
+
+    background:white;
+
+    border-radius:12px;
+
+    width:90%;
+
+    max-width:500px;
+
+    padding:30px;
+
+    box-shadow:var(--sombra);
+
+}
+
+.modal-header{
+
+    margin-bottom:20px;
+
+}
+
+.modal-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+    margin-top:25px;
+
+}
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+.toast{
+
+    position:fixed;
+
+    right:20px;
+
+    bottom:20px;
+
+    min-width:280px;
+
+    padding:18px;
+
+    border-radius:10px;
+
+    color:white;
+
+    font-weight:600;
+
+    box-shadow:var(--sombra);
+
+    animation:slideUp .3s ease;
+
+    z-index:9999;
+
+}
+
+.toast-success{
+
+    background:var(--color-exito);
+
+}
+
+.toast-danger{
+
+    background:var(--color-peligro);
+
+}
+
+.toast-warning{
+
+    background:var(--color-alerta);
+
+}
+
+/* ==========================================================
+   PAGINACIÓN
+========================================================== */
+
+.paginacion{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-top:30px;
+
+}
+
+.paginacion button{
+
+    min-width:110px;
+
+}
+
+/* ==========================================================
+   AVATAR
+========================================================== */
+
+.avatar{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+}
+
+.avatar-grande{
+
+    width:80px;
+
+    height:80px;
+
+}
+
+/* ==========================================================
+   ESTADOS
+========================================================== */
+
+.estado-aprobado{
+
+    color:var(--color-exito);
+
+    font-weight:bold;
+
+}
+
+.estado-negado{
+
+    color:var(--color-peligro);
+
+    font-weight:bold;
+
+}
+
+.estado-pendiente{
+
+    color:var(--color-alerta);
+
+    font-weight:bold;
+
+}
+
+/* ==========================================================
+   LOADER PEQUEÑO
+========================================================== */
+
+.loader-mini{
+
+    width:24px;
+
+    height:24px;
+
+    border:3px solid #ddd;
+
+    border-top:3px solid var(--color-primario);
+
+    border-radius:50%;
+
+    animation:girar 1s linear infinite;
+
+}
+
+/* ==========================================================
+   TOOLTIP
+========================================================== */
+
+.tooltip{
+
+    position:relative;
+
+    cursor:pointer;
+
+}
+
+.tooltip::after{
+
+    content:attr(data-tooltip);
+
+    position:absolute;
+
+    bottom:120%;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:#333;
+
+    color:white;
+
+    padding:6px 10px;
+
+    border-radius:6px;
+
+    font-size:12px;
+
+    white-space:nowrap;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.2s;
+
+}
+
+.tooltip:hover::after{
+
+    opacity:1;
+
+}
+
+/* ==========================================================
+   DIVISORES
+========================================================== */
+
+.divider{
+
+    width:100%;
+
+    height:1px;
+
+    background:var(--color-borde);
+
+    margin:20px 0;
+
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:768px){
+
+    .modal-contenido{
+
+        width:95%;
+
+    }
+
+    .toast{
+
+        left:15px;
+
+        right:15px;
+
+        bottom:15px;
+
+        min-width:auto;
+
+    }
+
+}

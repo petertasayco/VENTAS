@@ -1,0 +1,548 @@
+/* ==========================================================
+   VARIABLES
+========================================================== */
+
+:root {
+
+    --color-primario: #005BAC;
+    --color-secundario: #00AEEF;
+    --color-exito: #2ECC71;
+    --color-peligro: #E74C3C;
+    --color-alerta: #F39C12;
+
+    --color-fondo: #F4F6F9;
+    --color-blanco: #FFFFFF;
+    --color-texto: #2C3E50;
+    --color-gris: #7F8C8D;
+    --color-borde: #E5E7EB;
+
+    --radio: 12px;
+
+    --sombra:
+        0 6px 18px rgba(0,0,0,.08);
+
+    --transicion: .25s;
+
+}
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+body{
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:var(--color-fondo);
+
+    color:var(--color-texto);
+
+    line-height:1.5;
+
+}
+
+/* ==========================================================
+   LINKS
+========================================================== */
+
+a{
+
+    text-decoration:none;
+
+    color:var(--color-primario);
+
+    transition:var(--transicion);
+
+}
+
+a:hover{
+
+    color:var(--color-secundario);
+
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 40px;
+
+    background:var(--color-blanco);
+
+    box-shadow:var(--sombra);
+
+}
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+.logo img{
+
+    width:60px;
+
+    height:60px;
+
+    object-fit:contain;
+
+}
+
+.logo h1{
+
+    font-size:28px;
+
+    font-weight:700;
+
+}
+
+.logo span{
+
+    color:var(--color-gris);
+
+    font-size:14px;
+
+}
+
+/* ==========================================================
+   NAV
+========================================================== */
+
+nav{
+
+    display:flex;
+
+    gap:20px;
+
+}
+
+nav a{
+
+    font-weight:600;
+
+}
+
+/* ==========================================================
+   CONTENEDOR
+========================================================== */
+
+main{
+
+    max-width:1500px;
+
+    margin:auto;
+
+    padding:30px;
+
+}
+
+section{
+
+    margin-bottom:30px;
+
+}
+
+/* ==========================================================
+   FILTROS
+========================================================== */
+
+.contenedor-filtros{
+
+    background:var(--color-blanco);
+
+    border-radius:var(--radio);
+
+    box-shadow:var(--sombra);
+
+    padding:20px;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:20px;
+
+    align-items:end;
+
+}
+
+.filtro{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.filtro label{
+
+    font-size:14px;
+
+    color:var(--color-gris);
+
+    font-weight:600;
+
+}
+
+.filtro input,
+.filtro select{
+
+    min-width:180px;
+
+    padding:10px;
+
+    border:1px solid var(--color-borde);
+
+    border-radius:8px;
+
+    font-size:15px;
+
+    outline:none;
+
+}
+
+.filtro input:focus,
+.filtro select:focus{
+
+    border-color:var(--color-secundario);
+
+}
+
+/* ==========================================================
+   BOTONES
+========================================================== */
+
+button{
+
+    cursor:pointer;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:11px 22px;
+
+    background:var(--color-primario);
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:var(--transicion);
+
+}
+
+button:hover{
+
+    background:#004A89;
+
+}
+
+button:disabled{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+}
+
+/* ==========================================================
+   TABLAS
+========================================================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:var(--color-blanco);
+
+    border-radius:var(--radio);
+
+    overflow:hidden;
+
+    box-shadow:var(--sombra);
+
+}
+
+thead{
+
+    background:var(--color-primario);
+
+    color:white;
+
+}
+
+thead th{
+
+    padding:15px;
+
+    text-align:left;
+
+    font-size:15px;
+
+}
+
+tbody td{
+
+    padding:14px;
+
+    border-bottom:1px solid var(--color-borde);
+
+}
+
+tbody tr{
+
+    transition:.2s;
+
+}
+
+tbody tr:hover{
+
+    background:#F8FBFF;
+
+}
+
+/* ==========================================================
+   TÍTULOS
+========================================================== */
+
+h2{
+
+    margin-bottom:15px;
+
+    font-size:24px;
+
+}
+
+h3{
+
+    font-size:18px;
+
+}
+
+/* ==========================================================
+   TARJETAS
+========================================================== */
+
+.card{
+
+    background:var(--color-blanco);
+
+    border-radius:var(--radio);
+
+    padding:20px;
+
+    box-shadow:var(--sombra);
+
+}
+
+/* ==========================================================
+   SPINNER
+========================================================== */
+
+.spinner{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(255,255,255,.75);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:999;
+
+}
+
+.oculto{
+
+    display:none;
+
+}
+
+.loader{
+
+    width:60px;
+
+    height:60px;
+
+    border:6px solid #ddd;
+
+    border-top:6px solid var(--color-primario);
+
+    border-radius:50%;
+
+    animation:girar 1s linear infinite;
+
+}
+
+.spinner p{
+
+    margin-top:20px;
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+/* ==========================================================
+   BADGES
+========================================================== */
+
+.badge{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.badge-success{
+
+    background:#D5F5E3;
+
+    color:#1E8449;
+
+}
+
+.badge-danger{
+
+    background:#FADBD8;
+
+    color:#922B21;
+
+}
+
+.badge-warning{
+
+    background:#FCF3CF;
+
+    color:#9A7D0A;
+
+}
+
+/* ==========================================================
+   ANIMACIONES
+========================================================== */
+
+@keyframes girar{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:992px){
+
+    .header{
+
+        flex-direction:column;
+
+        gap:20px;
+
+        text-align:center;
+
+    }
+
+    .contenedor-filtros{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+    }
+
+    .filtro input,
+    .filtro select{
+
+        width:100%;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    body{
+
+        font-size:14px;
+
+    }
+
+    .logo{
+
+        flex-direction:column;
+
+    }
+
+    .logo h1{
+
+        font-size:22px;
+
+    }
+
+    table{
+
+        display:block;
+
+        overflow-x:auto;
+
+        white-space:nowrap;
+
+    }
+
+}

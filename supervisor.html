@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Supervisor</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="css/supervisor.css">
+
+</head>
+
+<body>
+
+    <!-- ===================================== -->
+    <!-- HEADER -->
+    <!-- ===================================== -->
+
+    <header class="header">
+
+        <div class="logo">
+
+            <img src="img/logo.png" alt="Logo">
+
+            <div>
+
+                <h1 id="nombreSupervisor">
+                    Cargando supervisor...
+                </h1>
+
+                <span id="ultimaActualizacion">
+                    Última actualización: --
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav>
+
+            <a href="index.html">Dashboard</a>
+
+            <a href="ranking.html">Ranking</a>
+
+        </nav>
+
+    </header>
+
+    <!-- ===================================== -->
+    <!-- FILTROS -->
+    <!-- ===================================== -->
+
+    <section class="contenedor-filtros">
+
+        <div class="filtro">
+
+            <label>Desde</label>
+
+            <input type="date" id="fechaInicio">
+
+        </div>
+
+        <div class="filtro">
+
+            <label>Hasta</label>
+
+            <input type="date" id="fechaFin">
+
+        </div>
+
+        <div class="filtro">
+
+            <label>Asesor</label>
+
+            <select id="asesor">
+
+                <option value="">Todos</option>
+
+            </select>
+
+        </div>
+
+        <button id="btnFiltrar">
+
+            Filtrar
+
+        </button>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- KPIs -->
+    <!-- ===================================== -->
+
+    <section class="contenedor-kpis">
+
+        <div class="card-kpi">
+
+            <h3>UP Móvil</h3>
+
+            <p id="kpiMovil">S/ 0</p>
+
+        </div>
+
+        <div class="card-kpi">
+
+            <h3>Migraciones</h3>
+
+            <p id="kpiMigraciones">0</p>
+
+        </div>
+
+        <div class="card-kpi">
+
+            <h3>UP Hogar</h3>
+
+            <p id="kpiHogar">S/ 0</p>
+
+        </div>
+
+        <div class="card-kpi">
+
+            <h3>Total Ventas</h3>
+
+            <p id="kpiVentas">0</p>
+
+        </div>
+
+        <div class="card-kpi">
+
+            <h3>Total Asesores</h3>
+
+            <p id="kpiAsesores">0</p>
+
+        </div>
+
+        <div class="card-kpi">
+
+            <h3>Comisión Total</h3>
+
+            <p id="kpiComision">S/ 0</p>
+
+        </div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- GRÁFICOS -->
+    <!-- ===================================== -->
+
+    <section class="contenedor-graficos">
+
+        <div class="grafico">
+
+            <h2>Producción por Asesor</h2>
+
+            <canvas id="graficoAsesores"></canvas>
+
+        </div>
+
+        <div class="grafico">
+
+            <h2>Evolución Diaria</h2>
+
+            <canvas id="graficoEvolucion"></canvas>
+
+        </div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- RANKING INTERNO -->
+    <!-- ===================================== -->
+
+    <section class="contenedor-ranking">
+
+        <div class="titulo-seccion">
+
+            <h2>Ranking del Equipo</h2>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Asesor</th>
+
+                    <th>UP Móvil</th>
+
+                    <th>Migraciones</th>
+
+                    <th>UP Hogar</th>
+
+                    <th>Total</th>
+
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tablaRanking">
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- DETALLE DE VENTAS -->
+    <!-- ===================================== -->
+
+    <section class="contenedor-tabla">
+
+        <div class="titulo-seccion">
+
+            <h2>Detalle de Ventas</h2>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Fecha</th>
+
+                    <th>Asesor</th>
+
+                    <th>Cliente</th>
+
+                    <th>Tipo</th>
+
+                    <th>Plan Anterior</th>
+
+                    <th>Plan Nuevo</th>
+
+                    <th>Diferencia</th>
+
+                    <th>Estado</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tablaVentas">
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- ACCIONES -->
+    <!-- ===================================== -->
+
+    <section class="acciones">
+
+        <button id="btnExcel">
+
+            Exportar Excel
+
+        </button>
+
+        <button id="btnPDF">
+
+            Exportar PDF
+
+        </button>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- SPINNER -->
+    <!-- ===================================== -->
+
+    <div id="spinner" class="spinner oculto">
+
+        <div class="loader"></div>
+
+        <p>Cargando información...</p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- SCRIPTS -->
+    <!-- ===================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/datos.js"></script>
+    <script src="js/utilidades.js"></script>
+    <script src="js/filtros.js"></script>
+    <script src="js/supervisor.js"></script>
+
+</body>
+
+</html>
