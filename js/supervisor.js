@@ -727,53 +727,22 @@ function dibujarProduccionAsesor(){
 
 
 //===========================================
-// EVOLUCION DIARIA
+// EVOLUCIÓN DIARIA
 //===========================================
 
-function dibujarEvolucionDiaria(){
+let graficoEvolucion;
 
+
+function dibujarEvolucionDiaria(){
 
     const canvas =
         document.getElementById("graficoEvolucion");
 
 
-    if(!canvas)
-        return;
+    if(!canvas) return;
 
 
-
-    const fechas = {};
-
-
-
-    ventasSupervisor.forEach(v=>{
-
-
-        const fecha =
-            formatearFecha(
-                v.fechaActivacion
-            );
-
-
-
-        if(!fechas[fecha]){
-
-
-            fechas[fecha]=0;
-
-
-        }
-
-
-
-        fechas[fecha] +=
-            Number(v.diferencia) || 0;
-
-
-    });
-
-
-
+    // destruir gráfico anterior
     if(graficoEvolucion){
 
         graficoEvolucion.destroy();
@@ -781,10 +750,79 @@ function dibujarEvolucionDiaria(){
     }
 
 
+    const datos = {};
 
-    graficoEvolucion = new Chart(
-        canvas,
-        {
+
+    ventasSupervisor.forEach(v=>{
+
+
+        const fecha =
+            formatearFecha(v.fechaActivacion);
+
+
+        if(!datos[fecha]){
+
+            datos[fecha] = 0;
+
+        }
+
+
+        // sumar producción aprobada
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
+
+
+        if(
+            estado === "APROBADO" ||
+            estado === "PENDIENTE BIOMETRIA"
+        ){
+
+            datos[fecha] += Number(v.diferencia) || 0;
+
+        }
+
+
+    });
+
+
+
+    // ordenar fechas antigua -> reciente
+
+    const fechasOrdenadas =
+        Object.keys(datos)
+        .sort((a,b)=>{
+
+
+            const fechaA =
+                new Date(
+                    a.split("/").reverse().join("-")
+                );
+
+
+            const fechaB =
+                new Date(
+                    b.split("/").reverse().join("-")
+                );
+
+
+            return fechaA - fechaB;
+
+
+        });
+
+
+
+    const valores =
+        fechasOrdenadas.map(
+            fecha => datos[fecha]
+        );
+
+
+
+    graficoEvolucion =
+        new Chart(canvas,{
 
 
             type:"line",
@@ -793,9 +831,7 @@ function dibujarEvolucionDiaria(){
             data:{
 
 
-                labels:
-                    Object.keys(fechas),
-
+                labels:fechasOrdenadas,
 
 
                 datasets:[{
@@ -804,11 +840,13 @@ function dibujarEvolucionDiaria(){
                     label:"Producción diaria",
 
 
-                    data:
-                        Object.values(fechas),
+                    data:valores,
 
 
-                    tension:0.3
+                    tension:0.3,
+
+
+                    fill:false
 
 
                 }]
@@ -820,15 +858,58 @@ function dibujarEvolucionDiaria(){
             options:{
 
 
-                responsive:true
+                responsive:true,
+
+
+                plugins:{
+
+
+                    legend:{
+
+
+                        display:true
+
+
+                    }
+
+
+                },
+
+
+                scales:{
+
+
+                    x:{
+
+
+                        ticks:{
+
+
+                            autoSkip:false
+
+
+                        }
+
+
+                    },
+
+
+                    y:{
+
+
+                        beginAtZero:true
+
+
+                    }
+
+
+                }
 
 
             }
 
 
-        }
-
-    );
+        });
 
 
 }
