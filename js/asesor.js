@@ -281,8 +281,352 @@ function aplicarFiltros() {
 // GRÁFICOS
 //===========================================
 
-function dibujarGraficos() {
+function dibujarGraficos(){
 
-    // Pendiente
+    dibujarVentasPorTipo();
+
+    dibujarEvolucionDiaria();
+
+}
+
+//===========================================
+// VENTAS POR TIPO
+//===========================================
+
+function dibujarVentasPorTipo(){
+
+    const canvas =
+        document.getElementById("graficoTipos");
+
+
+    if(!canvas)
+        return;
+
+
+    if(graficoTipos){
+
+        graficoTipos.destroy();
+
+    }
+
+
+    const datos = {
+
+        "UP Móvil":0,
+
+        "Migraciones":0,
+
+        "UP Hogar":0
+
+    };
+
+
+    ventasAsesor.forEach(v=>{
+
+
+        const tipo =
+            (v.tipoVenta || "")
+            .toUpperCase();
+
+
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
+
+
+
+        // UP MOVIL APROBADO
+
+        if(
+            tipo.includes("UP GRADE MOVIL") &&
+            estado==="APROBADO"
+        ){
+
+            datos["UP Móvil"] +=
+                Number(v.diferencia)||0;
+
+        }
+
+
+
+        // MIGRACIONES APROBADO
+        // + PENDIENTE BIOMETRIA
+
+        if(
+            tipo.includes("MIGRACION") &&
+            (
+                estado==="APROBADO" ||
+                estado==="PENDIENTE BIOMETRIA"
+            )
+        ){
+
+            datos["Migraciones"]++;
+
+        }
+
+
+
+        // UP HOGAR APROBADO
+
+        if(
+            tipo.includes("UP GRADE HOGAR") &&
+            estado==="APROBADO"
+        ){
+
+            datos["UP Hogar"] +=
+                Number(v.diferencia)||0;
+
+        }
+
+
+    });
+
+
+
+    graficoTipos =
+    new Chart(canvas,{
+
+        type:"bar",
+
+        data:{
+
+
+            labels:Object.keys(datos),
+
+
+            datasets:[{
+
+
+                label:"Producción",
+
+
+                data:Object.values(datos)
+
+
+            }]
+
+        },
+
+
+        options:{
+
+
+            responsive:true,
+
+
+            scales:{
+
+
+                y:{
+
+                    beginAtZero:true
+
+                }
+
+            }
+
+
+        }
+
+
+    });
+
+
+}
+
+//===========================================
+// EVOLUCIÓN DIARIA
+//===========================================
+
+
+function dibujarEvolucionDiaria(){
+
+    const canvas =
+        document.getElementById("graficoEvolucion");
+
+
+    if(!canvas)
+        return;
+
+
+    if(graficoEvolucion){
+
+        graficoEvolucion.destroy();
+
+    }
+
+
+
+    const fechas = {};
+
+
+
+    ventasAsesor.forEach(v=>{
+
+
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
+
+
+
+        const tipo =
+            (v.tipoVenta || "")
+            .toUpperCase();
+
+
+
+        let valido=false;
+
+
+
+        if(
+            tipo.includes("UP GRADE MOVIL") &&
+            estado==="APROBADO"
+        ){
+
+            valido=true;
+
+        }
+
+
+
+        if(
+            tipo.includes("UP GRADE HOGAR") &&
+            estado==="APROBADO"
+        ){
+
+            valido=true;
+
+        }
+
+
+
+        if(
+            tipo.includes("MIGRACION") &&
+            (
+                estado==="APROBADO" ||
+                estado==="PENDIENTE BIOMETRIA"
+            )
+        ){
+
+            valido=true;
+
+        }
+
+
+
+        if(!valido)
+            return;
+
+
+
+        const fecha =
+            formatearFecha(
+                v.fechaActivacion
+            );
+
+
+
+        if(!fechas[fecha]){
+
+            fechas[fecha]=0;
+
+        }
+
+
+
+        fechas[fecha]++;
+
+    });
+
+
+
+    const fechasOrdenadas =
+        Object.keys(fechas)
+        .sort((a,b)=>{
+
+
+            const fechaA =
+                new Date(
+                    a.split("/")
+                    .reverse()
+                    .join("-")
+                );
+
+
+            const fechaB =
+                new Date(
+                    b.split("/")
+                    .reverse()
+                    .join("-")
+                );
+
+
+            return fechaA-fechaB;
+
+
+        });
+
+
+
+    graficoEvolucion =
+    new Chart(canvas,{
+
+
+        type:"line",
+
+
+        data:{
+
+
+            labels:fechasOrdenadas,
+
+
+            datasets:[{
+
+
+                label:"Ventas diarias",
+
+
+                data:
+                    fechasOrdenadas.map(
+                        f=>fechas[f]
+                    ),
+
+
+                tension:0.3
+
+
+            }]
+
+        },
+
+
+        options:{
+
+
+            responsive:true,
+
+
+            scales:{
+
+
+                y:{
+
+                    beginAtZero:true
+
+                }
+
+            }
+
+
+        }
+
+
+    });
+
 
 }
