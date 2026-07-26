@@ -166,47 +166,139 @@ function calcularKPIs(){
     actualizarInformacion();
 
 
-    const kpi =
-        obtenerKPIs(
-            ventasSupervisor
-        );
+    let upMovil = 0;
+    let migraciones = 0;
+    let upHogar = 0;
+
+
+    let upMovilNegados = 0;
+    let migracionesNegadas = 0;
+    let upHogarNegados = 0;
+
+
+
+    ventasSupervisor.forEach(v=>{
+
+
+        const tipo =
+            (v.tipoVenta || "")
+            .toLowerCase();
+
+
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
+
+
+        const diferencia =
+            Number(v.diferencia) || 0;
+
+
+
+        //===================================
+        // APROBADOS
+        //===================================
+
+        if(
+            estado === "APROBADO" ||
+            (
+                tipo.includes("migracion") &&
+                estado === "PENDIENTE BIOMETRIA"
+            )
+        ){
+
+
+            if(tipo.includes("movil")){
+
+                upMovil += diferencia;
+
+            }
+
+
+            else if(tipo.includes("hogar")){
+
+                upHogar += diferencia;
+
+            }
+
+
+            else if(tipo.includes("migracion")){
+
+                migraciones++;
+
+            }
+
+
+        }
+
+
+
+        //===================================
+        // NEGADOS
+        //===================================
+
+        if(estado === "NEGADO"){
+
+
+            if(tipo.includes("movil")){
+
+                upMovilNegados += diferencia;
+
+            }
+
+
+            else if(tipo.includes("hogar")){
+
+                upHogarNegados += diferencia;
+
+            }
+
+
+            else if(tipo.includes("migracion")){
+
+                migracionesNegadas++;
+
+            }
+
+
+        }
+
+
+    });
+
 
 
     const elementos = {
 
 
-        kpiVentas:
-            kpi.ventas,
-
-
         kpiMovil:
-            formatearDinero(
-                kpi.upMovil
-            ),
-
-
-        kpiHogar:
-            formatearDinero(
-                kpi.upHogar
-            ),
+            formatearDinero(upMovil),
 
 
         kpiMigraciones:
-            kpi.migraciones,
+            migraciones,
 
 
-        kpiTotal:
-            formatearDinero(
-                kpi.total
-            ),
+        kpiHogar:
+            formatearDinero(upHogar),
 
 
-        kpiComision:
-            formatearDinero(
-                kpi.total
-            )
+
+        kpiMovilNegados:
+            formatearDinero(upMovilNegados),
+
+
+        kpiMigracionesNegadas:
+            migracionesNegadas,
+
+
+        kpiHogarNegados:
+            formatearDinero(upHogarNegados)
+
 
     };
+
 
 
     Object.entries(elementos)
@@ -219,8 +311,7 @@ function calcularKPIs(){
 
         if(elemento){
 
-            elemento.textContent =
-                valor;
+            elemento.textContent = valor;
 
         }
 
@@ -229,7 +320,6 @@ function calcularKPIs(){
 
 
 }
-
 
 
 //===========================================

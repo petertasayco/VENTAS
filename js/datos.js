@@ -31,10 +31,11 @@ async function iniciarDatos(force = false) {
         return;
     }
 
-    ventas = await cargarVentas();
+    const respuesta = await cargarVentas();
 
-    // Copia independiente
-    ventasOriginales = structuredClone(ventas);
+ventas = filtrarVentasValidas(respuesta);
+
+ventasOriginales = [...ventas];
 
     obtenerCatalogos();
 
@@ -143,6 +144,57 @@ function buscarVenta(id) {
 
 }
 
+//===========================================
+// FILTRO DE VENTAS VÁLIDAS POR TIPO
+//===========================================
+
+function filtrarVentasValidas(lista){
+
+    return lista.filter(v=>{
+
+        const tipo = 
+            (v.tipoVenta || "")
+            .toUpperCase();
+
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
+
+
+        // UP MOVIL
+        if(tipo === "UP GRADE MOVIL" || tipo === "UP GRADE MOVIL"){
+
+            return estado === "APROBADO";
+
+        }
+
+
+        // UP HOGAR
+        if(tipo === "UP GRADE HOGAR"){
+
+            return estado === "APROBADO";
+
+        }
+
+
+        // MIGRACIONES
+        if(tipo === "MIGRACIONES" || tipo === "MIGRACION"){
+
+            return (
+                estado === "APROBADO" ||
+                estado === "PENDIENTE BIOMETRIA"
+            );
+
+        }
+
+
+        return false;
+
+
+    });
+
+}
 
 //===========================================
 // OBTENER KPIs
@@ -209,6 +261,8 @@ function calcularRankingAsesor(lista){
 
     const ranking = {};
 
+    lista = filtrarVentasValidas(lista);
+
     lista.forEach(v=>{
 
         const nombre = v.asesor;
@@ -242,7 +296,9 @@ function calcularRankingAsesor(lista){
         ranking[nombre].ventas++;
 
 
-        switch(v.tipoVenta){
+        switch(
+    (v.tipoVenta || "").toLowerCase()
+){
 
             case TIPOS_VENTA.MOVIL:
 
