@@ -14,6 +14,8 @@ let ventas = [];
 
 let ventasOriginales = [];
 
+let ventasValidas = [];
+
 let asesores = [];
 
 let supervisores = [];
@@ -31,11 +33,13 @@ async function iniciarDatos(force = false) {
         return;
     }
 
-    const respuesta = await cargarVentas();
+  const respuesta = await cargarVentas();
 
-ventas = filtrarVentasValidas(respuesta);
+ventas = respuesta;
 
 ventasOriginales = [...ventas];
+
+ventasValidas = filtrarVentasValidas(ventas);
 
     obtenerCatalogos();
 

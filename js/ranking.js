@@ -27,7 +27,7 @@ async function iniciar() {
 
         await iniciarDatos();
 
-        rankingActual = calcularRankingAsesor(ventas);
+        rankingActual = calcularRankingAsesor(ventasValidas);
 
         cargarEventos();
 

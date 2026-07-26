@@ -31,7 +31,7 @@ async function iniciar() {
 
         await iniciarDatos();
 
-        datosFiltrados = [...ventas];
+        datosFiltrados = [...ventasValidas];
 
         await cargarCombos();
 
