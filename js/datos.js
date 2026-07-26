@@ -204,7 +204,8 @@ function filtrarVentasValidas(lista){
 // OBTENER KPIs
 //===========================================
 
-function obtenerKPIs(lista) {
+function obtenerKPIs(lista){
+
 
     let movil = 0;
 
@@ -212,47 +213,127 @@ function obtenerKPIs(lista) {
 
     let migraciones = 0;
 
-    const ventasTotal = lista.length;
 
-    lista.forEach(v => {
+    let movilNegados = 0;
 
-        switch (v.tipoVenta) {
+    let hogarNegados = 0;
 
-            case TIPOS_VENTA.MOVIL:
+    let migracionesNegadas = 0;
 
-                movil += v.diferencia;
 
-                break;
+    lista.forEach(v=>{
 
-            case TIPOS_VENTA.HOGAR:
 
-                hogar += v.diferencia;
+        const tipo =
+            (v.tipoVenta || "")
+            .toUpperCase();
 
-                break;
 
-            case TIPOS_VENTA.MIGRACION:
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase();
 
-                migraciones++;
 
-                break;
+
+        const aprobado =
+            estado === "APROBADO";
+
+
+        const negado =
+            estado === "NEGADO";
+
+
+
+        if(tipo.includes("UP GRADE MOVIL")){
+
+
+            if(aprobado){
+
+                movil += Number(v.diferencia)||0;
+
+            }
+
+
+            if(negado){
+
+                movilNegados++;
+
+            }
+
 
         }
 
+
+
+        if(tipo.includes("UP GRADE HOGAR")){
+
+
+            if(aprobado){
+
+                hogar += Number(v.diferencia)||0;
+
+            }
+
+
+            if(negado){
+
+                hogarNegados++;
+
+            }
+
+
+        }
+
+
+
+        if(tipo.includes("MIGRACION")){
+
+
+            if(
+                aprobado ||
+                estado==="PENDIENTE BIOMETRIA"
+            ){
+
+                migraciones++;
+
+            }
+
+
+            if(negado){
+
+                migracionesNegadas++;
+
+            }
+
+
+        }
+
+
+
     });
+
+
 
     return {
 
-        ventas: ventasTotal,
+    ventas: lista.length,
 
-        upMovil: movil,
+    upMovil:movil,
 
-        upHogar: hogar,
+    upHogar:hogar,
 
-        migraciones,
+    migraciones:migraciones,
 
-        total: movil + hogar
 
-    };
+    upMovilNegados:movilNegados,
+
+    upHogarNegados:hogarNegados,
+
+    migracionesNegadas:migracionesNegadas
+
+
+};
+
 
 }
 
@@ -265,22 +346,25 @@ function calcularRankingAsesor(lista){
 
     const ranking = {};
 
-    lista = filtrarVentasValidas(lista);
 
     lista.forEach(v=>{
 
+
         const nombre = v.asesor;
+
 
         if(!nombre) return;
 
 
+
         if(!ranking[nombre]){
+
 
             ranking[nombre]={
 
                 nombre,
 
-                supervisor: v.supervisor || "",
+                supervisor:v.supervisor || "",
 
                 ventas:0,
 
@@ -294,39 +378,81 @@ function calcularRankingAsesor(lista){
 
             };
 
+
         }
+
 
 
         ranking[nombre].ventas++;
 
 
-        switch(
-    (v.tipoVenta || "").toLowerCase()
-){
 
-            case TIPOS_VENTA.MOVIL:
-
-                ranking[nombre].upMovil += 
-                    Number(v.diferencia) || 0;
-
-                break;
+        const tipo =
+            (v.tipoVenta || "")
+            .toUpperCase()
+            .trim();
 
 
-            case TIPOS_VENTA.HOGAR:
 
-                ranking[nombre].upHogar += 
-                    Number(v.diferencia) || 0;
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase()
+            .trim();
 
-                break;
 
 
-            case TIPOS_VENTA.MIGRACION:
+        // UP MOVIL
+
+        if(tipo.includes("UP GRADE MOVIL")){
+
+
+            if(estado==="APROBADO"){
+
+                ranking[nombre].upMovil +=
+                    Number(v.diferencia)||0;
+
+            }
+
+        }
+
+
+
+
+        // UP HOGAR
+
+        if(tipo.includes("UP GRADE HOGAR")){
+
+
+            if(estado==="APROBADO"){
+
+                ranking[nombre].upHogar +=
+                    Number(v.diferencia)||0;
+
+            }
+
+
+        }
+
+
+
+
+        // MIGRACIONES
+
+        if(tipo.includes("MIGRACION")){
+
+
+            if(
+                estado==="APROBADO" ||
+                estado==="PENDIENTE BIOMETRIA"
+            ){
 
                 ranking[nombre].migraciones++;
 
-                break;
+            }
+
 
         }
+
 
 
         ranking[nombre].total =
@@ -334,24 +460,30 @@ function calcularRankingAsesor(lista){
             ranking[nombre].upHogar;
 
 
+
     });
 
 
-    return Object.values(ranking).sort((a,b)=>{
+
+    return Object.values(ranking)
+    .sort((a,b)=>{
+
 
         return (
 
-            b.total - a.total ||
+            b.total-a.total ||
 
-            b.upMovil - a.upMovil ||
+            b.upMovil-a.upMovil ||
 
-            b.migraciones - a.migraciones ||
+            b.migraciones-a.migraciones ||
 
-            b.upHogar - a.upHogar
+            b.upHogar-a.upHogar
 
         );
 
+
     });
+
 
 }
 
@@ -360,79 +492,123 @@ function calcularRankingAsesor(lista){
 // RANKING DE SUPERVISORES
 //===========================================
 
-function calcularRankingSupervisor(lista) {
+function calcularRankingSupervisor(lista){
+
 
     const ranking = {};
 
-    lista.forEach(v => {
+
+
+    lista.forEach(v=>{
+
 
         const nombre = v.supervisor;
 
-        if (!nombre) return;
 
-        if (!ranking[nombre]) {
+        if(!nombre) return;
 
-            ranking[nombre] = {
+
+
+        if(!ranking[nombre]){
+
+
+            ranking[nombre]={
 
                 nombre,
 
-                ventas: 0,
+                ventas:0,
 
-                upMovil: 0,
+                upMovil:0,
 
-                upHogar: 0,
+                upHogar:0,
 
-                migraciones: 0,
+                migraciones:0,
 
-                total: 0
+                total:0
 
             };
 
+
         }
+
+
 
         ranking[nombre].ventas++;
 
-        switch (v.tipoVenta) {
 
-            case TIPOS_VENTA.MOVIL:
 
-                ranking[nombre].upMovil += v.diferencia;
+        const tipo =
+            (v.tipoVenta || "")
+            .toUpperCase();
 
-                break;
 
-            case TIPOS_VENTA.HOGAR:
 
-                ranking[nombre].upHogar += v.diferencia;
+        const estado =
+            (v.estadoCredito || "")
+            .toUpperCase();
 
-                break;
 
-            case TIPOS_VENTA.MIGRACION:
 
-                ranking[nombre].migraciones++;
+        if(tipo.includes("UP GRADE MOVIL")
+        && estado==="APROBADO"){
 
-                break;
+
+            ranking[nombre].upMovil +=
+                Number(v.diferencia)||0;
+
 
         }
 
+
+
+        if(tipo.includes("UP GRADE HOGAR")
+        && estado==="APROBADO"){
+
+
+            ranking[nombre].upHogar +=
+                Number(v.diferencia)||0;
+
+
+        }
+
+
+
+        if(tipo.includes("MIGRACION")
+        &&
+        (
+            estado==="APROBADO" ||
+            estado==="PENDIENTE BIOMETRIA"
+        )){
+
+
+            ranking[nombre].migraciones++;
+
+
+        }
+
+
+
+        ranking[nombre].total =
+            ranking[nombre].upMovil +
+            ranking[nombre].upHogar;
+
+
+
     });
 
-    Object.values(ranking).forEach(r => {
 
-        r.total = r.upMovil + r.upHogar;
 
-    });
+    return Object.values(ranking)
+    .sort((a,b)=>
 
-    return Object.values(ranking).sort((a, b) =>
+        b.total-a.total ||
 
-        b.total - a.total ||
+        b.upMovil-a.upMovil ||
 
-        b.upMovil - a.upMovil ||
-
-        b.migraciones - a.migraciones ||
-
-        b.upHogar - a.upHogar
+        b.migraciones-a.migraciones
 
     );
+
 
 }
 
