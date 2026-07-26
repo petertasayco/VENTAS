@@ -128,14 +128,18 @@ function filtrarPorTipoVenta(lista, tipo) {
 // ESTADO CRÉDITO
 //===========================================
 
-function filtrarPorEstado(lista, estado) {
-
-    estado = estado.trim().toUpperCase();
+function filtrarPorEstado(lista, estado){
 
     return lista.filter(v =>
+
         (v.estadoCredito || "")
-            .trim()
-            .toUpperCase() === estado
+        .toUpperCase()
+        .trim()
+        ===
+        estado
+        .toUpperCase()
+        .trim()
+
     );
 
 }
