@@ -13,8 +13,6 @@ let asesor = "";
 
 let ventasAsesor = [];
 
-let ventasOriginales = [];
-
 let chartTipos = null;
 
 let chartEvolucion = null;
