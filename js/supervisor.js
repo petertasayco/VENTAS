@@ -17,6 +17,9 @@ let ventasSupervisorOriginal = [];
 
 let rankingEquipo = [];
 
+let graficoAsesores;
+let graficoEvolucion;
+
 
 //===========================================
 // INICIO
@@ -45,6 +48,8 @@ async function iniciar(){
         dibujarRankingEquipo();
 
         dibujarTablaVentas();
+
+        dibujarGraficos();
 
         cargarEventos();
 
@@ -606,5 +611,224 @@ function medalla(posicion){
             return posicion;
 
     }
+
+}
+
+//===========================================
+// GRAFICOS
+//===========================================
+
+function dibujarGraficos(){
+
+
+    dibujarProduccionAsesor();
+
+
+    dibujarEvolucionDiaria();
+
+
+}
+
+
+
+//===========================================
+// PRODUCCION POR ASESOR
+//===========================================
+
+function dibujarProduccionAsesor(){
+
+
+    const canvas =
+        document.getElementById("graficoAsesores");
+
+
+    if(!canvas)
+        return;
+
+
+
+    const ranking =
+        calcularRankingAsesor(
+            ventasSupervisor
+        );
+
+
+
+    if(graficoAsesores){
+
+        graficoAsesores.destroy();
+
+    }
+
+
+
+    graficoAsesores = new Chart(
+        canvas,
+        {
+
+            type:"bar",
+
+
+            data:{
+
+
+                labels:
+                    ranking.map(
+                        x=>x.nombre
+                    ),
+
+
+                datasets:[{
+
+
+                    label:"UP Móvil",
+
+
+                    data:
+                        ranking.map(
+                            x=>x.upMovil
+                        )
+
+
+                }]
+
+
+            },
+
+
+            options:{
+
+
+                responsive:true,
+
+
+                plugins:{
+
+
+                    legend:{
+
+                        display:true
+
+                    }
+
+
+                }
+
+            }
+
+
+        }
+
+    );
+
+
+}
+
+
+
+//===========================================
+// EVOLUCION DIARIA
+//===========================================
+
+function dibujarEvolucionDiaria(){
+
+
+    const canvas =
+        document.getElementById("graficoEvolucion");
+
+
+    if(!canvas)
+        return;
+
+
+
+    const fechas = {};
+
+
+
+    ventasSupervisor.forEach(v=>{
+
+
+        const fecha =
+            formatearFecha(
+                v.fechaActivacion
+            );
+
+
+
+        if(!fechas[fecha]){
+
+
+            fechas[fecha]=0;
+
+
+        }
+
+
+
+        fechas[fecha] +=
+            Number(v.diferencia) || 0;
+
+
+    });
+
+
+
+    if(graficoEvolucion){
+
+        graficoEvolucion.destroy();
+
+    }
+
+
+
+    graficoEvolucion = new Chart(
+        canvas,
+        {
+
+
+            type:"line",
+
+
+            data:{
+
+
+                labels:
+                    Object.keys(fechas),
+
+
+
+                datasets:[{
+
+
+                    label:"Producción diaria",
+
+
+                    data:
+                        Object.values(fechas),
+
+
+                    tension:0.3
+
+
+                }]
+
+
+            },
+
+
+            options:{
+
+
+                responsive:true
+
+
+            }
+
+
+        }
+
+    );
+
 
 }
