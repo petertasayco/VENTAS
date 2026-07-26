@@ -13,7 +13,6 @@ let asesor = "";
 
 let ventasAsesor = [];
 
-let ventasOriginales = [];
 
 
 //===========================================
@@ -79,7 +78,7 @@ function cargarAsesor() {
 
     ventasAsesor = buscarAsesor(asesor);
 
-    ventasOriginales = structuredClone(ventasAsesor);
+    ventasOriginales = [...ventasAsesor];
 
 }
 
