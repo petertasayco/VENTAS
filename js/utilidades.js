@@ -319,3 +319,33 @@ function descargarArchivo(contenido, nombre) {
     URL.revokeObjectURL(url);
 
 }
+
+function mostrarUltimaActualizacion(){
+
+    const elemento =
+        document.getElementById(
+            "ultimaActualizacion"
+        );
+
+
+    if(!elemento)
+        return;
+
+
+    if(!ultimaActualizacion){
+
+        elemento.textContent =
+            "Última actualización: --";
+
+        return;
+
+    }
+
+
+    elemento.textContent =
+        "Última actualización: " +
+        formatearFechaHora(
+            ultimaActualizacion
+        );
+
+}

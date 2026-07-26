@@ -93,21 +93,36 @@ async function actualizarDatos() {
 // OBTENER FECHA DE ACTUALIZACIÓN
 //===========================================
 
-function obtenerFechaActualizacion() {
+function obtenerFechaActualizacion(){
 
-    if (!ventas.length) {
+    if(!ventas.length){
         return null;
     }
+
 
     const fechas = ventas
-        .map(v => v.fechaCarga)
-        .filter(f => f instanceof Date && !isNaN(f));
+        .map(v => {
 
-    if (!fechas.length) {
+            return new Date(
+                v["Fecha Carga"]
+            );
+
+        })
+        .filter(f => !isNaN(f));
+
+
+    if(!fechas.length){
         return null;
     }
 
-    return new Date(Math.max(...fechas));
+
+    return new Date(
+        Math.max(
+            ...fechas.map(
+                f=>f.getTime()
+            )
+        )
+    );
 
 }
 

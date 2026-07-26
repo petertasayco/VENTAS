@@ -30,6 +30,8 @@ async function iniciar() {
 
         await iniciarDatos();
 
+        mostrarUltimaActualizacion();
+
         obtenerAsesorURL();
 
         cargarAsesor();

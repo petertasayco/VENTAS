@@ -39,9 +39,13 @@ async function iniciar(){
 
         await iniciarDatos();
 
+        mostrarUltimaActualizacion();
+
         obtenerSupervisorURL();
 
         cargarSupervisor();
+
+        cargarAsesoresSupervisor();
 
         calcularKPIs();
 
@@ -909,5 +913,49 @@ function dibujarEvolucionDiaria(){
 
         });
 
+
+}
+
+function cargarAsesoresSupervisor(){
+
+    const select =
+        document.getElementById("asesor");
+
+
+    if(!select)
+        return;
+
+
+    select.innerHTML =
+    `
+    <option value="">
+        Todos
+    </option>
+    `;
+
+
+    const lista =
+        [...new Set(
+            ventasSupervisorOriginal
+            .map(v=>v.asesor)
+            .filter(Boolean)
+        )];
+
+
+    lista.sort();
+
+
+    lista.forEach(nombre=>{
+
+
+        select.innerHTML +=
+        `
+        <option value="${nombre}">
+            ${nombre}
+        </option>
+        `;
+
+
+    });
 
 }
