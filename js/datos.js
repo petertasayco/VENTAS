@@ -352,13 +352,10 @@ function calcularRankingAsesor(lista){
 
         const nombre = v.asesor;
 
-
         if(!nombre) return;
 
 
-
         if(!ranking[nombre]){
-
 
             ranking[nombre]={
 
@@ -378,7 +375,6 @@ function calcularRankingAsesor(lista){
 
             };
 
-
         }
 
 
@@ -387,7 +383,7 @@ function calcularRankingAsesor(lista){
 
 
 
-        const tipo =
+        const tipo = 
             (v.tipoVenta || "")
             .toUpperCase()
             .trim();
@@ -403,53 +399,45 @@ function calcularRankingAsesor(lista){
 
         // UP MOVIL
 
-        if(tipo.includes("UP GRADE MOVIL")){
+        if(
+            tipo === "UP GRADE MOVIL" &&
+            estado === "APROBADO"
+        ){
 
-
-            if(estado==="APROBADO"){
-
-                ranking[nombre].upMovil +=
-                    Number(v.diferencia)||0;
-
-            }
+            ranking[nombre].upMovil +=
+                Number(v.diferencia) || 0;
 
         }
-
 
 
 
         // UP HOGAR
 
-        if(tipo.includes("UP GRADE HOGAR")){
+        if(
+            tipo === "UP GRADE HOGAR" &&
+            estado === "APROBADO"
+        ){
 
-
-            if(estado==="APROBADO"){
-
-                ranking[nombre].upHogar +=
-                    Number(v.diferencia)||0;
-
-            }
-
+            ranking[nombre].upHogar +=
+                Number(v.diferencia) || 0;
 
         }
 
 
 
-
         // MIGRACIONES
 
-        if(tipo.includes("MIGRACION")){
+        if(
+            (tipo === "MIGRACION" ||
+             tipo === "MIGRACIONES")
+            &&
+            (
+                estado === "APROBADO" ||
+                estado === "PENDIENTE BIOMETRIA"
+            )
+        ){
 
-
-            if(
-                estado==="APROBADO" ||
-                estado==="PENDIENTE BIOMETRIA"
-            ){
-
-                ranking[nombre].migraciones++;
-
-            }
-
+            ranking[nombre].migraciones++;
 
         }
 
@@ -458,7 +446,6 @@ function calcularRankingAsesor(lista){
         ranking[nombre].total =
             ranking[nombre].upMovil +
             ranking[nombre].upHogar;
-
 
 
     });
@@ -471,19 +458,18 @@ function calcularRankingAsesor(lista){
 
         return (
 
-            b.total-a.total ||
+            b.total - a.total ||
 
-            b.upMovil-a.upMovil ||
+            b.upMovil - a.upMovil ||
 
-            b.migraciones-a.migraciones ||
+            b.migraciones - a.migraciones ||
 
-            b.upHogar-a.upHogar
+            b.upHogar - a.upHogar
 
         );
 
 
     });
-
 
 }
 
