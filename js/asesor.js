@@ -13,44 +13,64 @@ let asesor = "";
 
 let ventasAsesor = [];
 
+let ventasOriginales = [];
+
+let chartTipos = null;
+
+let chartEvolucion = null;
+
 
 
 //===========================================
 // INICIO
 //===========================================
 
-document.addEventListener("DOMContentLoaded", iniciar);
+document.addEventListener(
+    "DOMContentLoaded",
+    iniciar
+);
 
 
-async function iniciar() {
 
-    try {
+async function iniciar(){
+
+    try{
 
         mostrarSpinner();
 
+
         await iniciarDatos();
+
 
         mostrarUltimaActualizacion();
 
+
         obtenerAsesorURL();
+
 
         cargarAsesor();
 
+
         cargarEventos();
+
 
         actualizarVista();
 
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        alert(MENSAJES.error);
 
     }
+    catch(error){
 
-    finally {
+        console.error(
+            "Error asesor:",
+            error
+        );
+
+        alert(
+            MENSAJES.error
+        );
+
+    }
+    finally{
 
         ocultarSpinner();
 
@@ -59,37 +79,52 @@ async function iniciar() {
 }
 
 
+
 //===========================================
 // OBTENER ASESOR
 //===========================================
 
-function obtenerAsesorURL() {
+function obtenerAsesorURL(){
 
-    const params = new URLSearchParams(location.search);
+    const params =
+        new URLSearchParams(
+            location.search
+        );
 
-    asesor = decodeURIComponent(params.get("id") || "");
+
+    asesor =
+        decodeURIComponent(
+            params.get("id") || ""
+        );
 
 }
+
 
 
 //===========================================
 // CARGAR DATOS
 //===========================================
 
-function cargarAsesor() {
+function cargarAsesor(){
 
-    ventasAsesor = buscarAsesor(asesor);
+    ventasAsesor =
+        buscarAsesor(
+            asesor
+        );
 
-    ventasOriginales = [...ventasAsesor];
+
+    ventasOriginales =
+        [...ventasAsesor];
 
 }
+
 
 
 //===========================================
 // ACTUALIZAR VISTA
 //===========================================
 
-function actualizarVista() {
+function actualizarVista(){
 
     actualizarEncabezado();
 
@@ -102,82 +137,137 @@ function actualizarVista() {
 }
 
 
+
 //===========================================
 // ENCABEZADO
 //===========================================
 
-function actualizarEncabezado() {
+function actualizarEncabezado(){
 
-    if (!ventasAsesor.length) return;
+    if(!ventasAsesor.length)
+        return;
 
-    const venta = ventasAsesor[0];
 
-    document.getElementById("nombreAsesor").textContent = asesor;
+    const venta =
+        ventasAsesor[0];
 
-    document.getElementById("supervisor").textContent =
+
+    document.getElementById(
+        "nombreAsesor"
+    ).textContent =
+        asesor;
+
+
+
+    document.getElementById(
+        "supervisor"
+    ).textContent =
         venta.supervisor || "-";
 
-    document.getElementById("nombreSupervisor").textContent =
+
+
+    document.getElementById(
+        "nombreSupervisor"
+    ).textContent =
         `Supervisor: ${venta.supervisor || "-"}`;
 
 }
+
 
 
 //===========================================
 // KPIs
 //===========================================
 
-function dibujarKPIs() {
+function dibujarKPIs(){
 
-    const kpi = obtenerKPIs(ventasAsesor);
+    const kpi =
+        obtenerKPIs(
+            ventasAsesor
+        );
+
 
     document.getElementById("kpiMovil").textContent =
-        formatearDinero(kpi.upMovil);
+        formatearDinero(
+            kpi.upMovil
+        );
+
 
     document.getElementById("kpiHogar").textContent =
-        formatearDinero(kpi.upHogar);
+        formatearDinero(
+            kpi.upHogar
+        );
+
 
     document.getElementById("kpiMigraciones").textContent =
         kpi.migraciones;
 
+
+
     document.getElementById("kpiVentas").textContent =
         kpi.ventas;
 
+
+
     document.getElementById("kpiComision").textContent =
-        formatearDinero(kpi.total);
+        formatearDinero(
+            kpi.total
+        );
 
 }
+
 
 
 //===========================================
 // TABLA
 //===========================================
 
-function dibujarTabla() {
+function dibujarTabla(){
 
-    const tbody = document.getElementById("tablaVentas");
+    const tbody =
+        document.getElementById(
+            "tablaVentas"
+        );
 
-    if (!tbody) return;
 
-    let html = "";
+    if(!tbody)
+        return;
 
-    ventasAsesor.forEach(v => {
+
+    let html="";
+
+
+    ventasAsesor.forEach(v=>{
+
 
         html += `
 
         <tr>
 
-            <td>${formatearFecha(v.fechaActivacion)}</td>
+            <td>
+                ${formatearFecha(v.fechaActivacion)}
+            </td>
 
-            <td>${v.cliente}</td>
+            <td>
+                ${v.cliente || "-"}
+            </td>
 
-            <td>${v.tipoVenta}</td>
+            <td>
+                ${v.tipoVenta || "-"}
+            </td>
 
-            <td>${v.tarifaAnterior}</td>
+            <td>
+                ${v.tarifaAnterior || "-"}
+            </td>
 
-            <td>${v.tarifaNueva}</td>
+            <td>
+                ${v.tarifaNueva || "-"}
+            </td>
 
-            <td>${formatearDinero(v.diferencia)}</td>
+            <td>
+                ${formatearDinero(v.diferencia)}
+            </td>
+
 
             <td>
 
@@ -189,96 +279,136 @@ function dibujarTabla() {
 
             </td>
 
+
         </tr>
 
         `;
 
+
     });
 
-    tbody.innerHTML = html;
+
+    tbody.innerHTML =
+        html;
 
 }
+
 
 
 //===========================================
 // EVENTOS
 //===========================================
 
-function cargarEventos() {
+function cargarEventos(){
+
 
     document
-        .getElementById("btnFiltrar")
-        ?.addEventListener("click", aplicarFiltros);
+    .getElementById("btnFiltrar")
+    ?.addEventListener(
+        "click",
+        aplicarFiltros
+    );
 
-    document
-        .getElementById("btnExcel")
-        ?.addEventListener("click", exportarExcel);
-
-    document
-        .getElementById("btnPDF")
-        ?.addEventListener("click", exportarPDF);
 
 }
+
 
 
 //===========================================
 // FILTROS
 //===========================================
 
-function aplicarFiltros() {
+function aplicarFiltros(){
 
-    ventasAsesor = [...ventasOriginales];
+    ventasAsesor =
+        [...ventasOriginales];
 
-    const inicio = obtenerValor("fechaInicio");
-    const fin = obtenerValor("fechaFin");
-    const tipo = obtenerValor("tipoVenta");
-    const estado = obtenerValor("estadoCredito");
 
-    if (inicio) {
-
-        ventasAsesor = filtrarPorFechaInicio(
-            ventasAsesor,
-            inicio
+    const inicio =
+        obtenerValor(
+            "fechaInicio"
         );
+
+
+    const fin =
+        obtenerValor(
+            "fechaFin"
+        );
+
+
+    const tipo =
+        obtenerValor(
+            "tipoVenta"
+        );
+
+
+    const estado =
+        obtenerValor(
+            "estadoCredito"
+        );
+
+
+
+    if(inicio){
+
+        ventasAsesor =
+            filtrarPorFechaInicio(
+                ventasAsesor,
+                inicio
+            );
 
     }
 
-    if (fin) {
 
-        ventasAsesor = filtrarPorFechaFin(
-            ventasAsesor,
-            fin
-        );
 
-    }
+    if(fin){
 
-    if (tipo) {
-
-        ventasAsesor = filtrarPorTipoVenta(
-            ventasAsesor,
-            tipo
-        );
+        ventasAsesor =
+            filtrarPorFechaFin(
+                ventasAsesor,
+                fin
+            );
 
     }
 
-    if (estado) {
 
-        ventasAsesor = filtrarPorEstado(
-            ventasAsesor,
-            estado
-        );
+
+    if(tipo){
+
+        ventasAsesor =
+            filtrarPorTipoVenta(
+                ventasAsesor,
+                tipo
+            );
 
     }
+
+
+
+    if(estado){
+
+        ventasAsesor =
+            filtrarPorEstado(
+                ventasAsesor,
+                estado
+            );
+
+    }
+
+
 
     dibujarKPIs();
 
     dibujarTabla();
 
+    dibujarGraficos();
+
 }
 
 
+
 //===========================================
-// GRÁFICOS
+// GRAFICOS
 //===========================================
 
 function dibujarGraficos(){
@@ -289,6 +419,8 @@ function dibujarGraficos(){
 
 }
 
+
+
 //===========================================
 // VENTAS POR TIPO
 //===========================================
@@ -296,18 +428,22 @@ function dibujarGraficos(){
 function dibujarVentasPorTipo(){
 
     const canvas =
-        document.getElementById("graficoTipos");
+        document.getElementById(
+            "graficoTipos"
+        );
 
 
     if(!canvas)
         return;
 
 
-    if(graficoTipos){
 
-        graficoTipos.destroy();
+    if(chartTipos){
+
+        chartTipos.destroy();
 
     }
+
 
 
     const datos = {
@@ -321,6 +457,7 @@ function dibujarVentasPorTipo(){
     };
 
 
+
     ventasAsesor.forEach(v=>{
 
 
@@ -329,14 +466,13 @@ function dibujarVentasPorTipo(){
             .toUpperCase();
 
 
+
         const estado =
             (v.estadoCredito || "")
             .toUpperCase()
             .trim();
 
 
-
-        // UP MOVIL APROBADO
 
         if(
             tipo.includes("UP GRADE MOVIL") &&
@@ -349,9 +485,6 @@ function dibujarVentasPorTipo(){
         }
 
 
-
-        // MIGRACIONES APROBADO
-        // + PENDIENTE BIOMETRIA
 
         if(
             tipo.includes("MIGRACION") &&
@@ -366,8 +499,6 @@ function dibujarVentasPorTipo(){
         }
 
 
-
-        // UP HOGAR APROBADO
 
         if(
             tipo.includes("UP GRADE HOGAR") &&
@@ -384,81 +515,75 @@ function dibujarVentasPorTipo(){
 
 
 
-    graficoTipos =
-    new Chart(canvas,{
+    chartTipos =
+        new Chart(
+            canvas,
+            {
 
-        type:"bar",
+            type:"bar",
 
-        data:{
+            data:{
 
+                labels:Object.keys(datos),
 
-            labels:Object.keys(datos),
+                datasets:[{
 
+                    label:"Producción",
 
-            datasets:[{
+                    data:Object.values(datos)
 
+                }]
 
-                label:"Producción",
+            },
 
+            options:{
 
-                data:Object.values(datos)
+                responsive:true,
 
+                scales:{
 
-            }]
+                    y:{
 
-        },
+                        beginAtZero:true
 
-
-        options:{
-
-
-            responsive:true,
-
-
-            scales:{
-
-
-                y:{
-
-                    beginAtZero:true
+                    }
 
                 }
 
             }
 
-
-        }
-
-
-    });
-
+        });
 
 }
+
+
 
 //===========================================
 // EVOLUCIÓN DIARIA
 //===========================================
 
-
 function dibujarEvolucionDiaria(){
 
     const canvas =
-        document.getElementById("graficoEvolucion");
+        document.getElementById(
+            "graficoEvolucion"
+        );
 
 
     if(!canvas)
         return;
 
 
-    if(graficoEvolucion){
 
-        graficoEvolucion.destroy();
+    if(chartEvolucion){
+
+        chartEvolucion.destroy();
 
     }
 
 
 
-    const fechas = {};
+    const fechas={};
 
 
 
@@ -469,7 +594,6 @@ function dibujarEvolucionDiaria(){
             (v.estadoCredito || "")
             .toUpperCase()
             .trim();
-
 
 
         const tipo =
@@ -485,22 +609,16 @@ function dibujarEvolucionDiaria(){
         if(
             tipo.includes("UP GRADE MOVIL") &&
             estado==="APROBADO"
-        ){
-
+        )
             valido=true;
-
-        }
 
 
 
         if(
             tipo.includes("UP GRADE HOGAR") &&
             estado==="APROBADO"
-        ){
-
+        )
             valido=true;
-
-        }
 
 
 
@@ -510,11 +628,8 @@ function dibujarEvolucionDiaria(){
                 estado==="APROBADO" ||
                 estado==="PENDIENTE BIOMETRIA"
             )
-        ){
-
+        )
             valido=true;
-
-        }
 
 
 
@@ -530,11 +645,8 @@ function dibujarEvolucionDiaria(){
 
 
 
-        if(!fechas[fecha]){
-
+        if(!fechas[fecha])
             fechas[fecha]=0;
-
-        }
 
 
 
@@ -548,85 +660,61 @@ function dibujarEvolucionDiaria(){
         Object.keys(fechas)
         .sort((a,b)=>{
 
-
-            const fechaA =
-                new Date(
-                    a.split("/")
-                    .reverse()
-                    .join("-")
-                );
-
-
-            const fechaB =
-                new Date(
-                    b.split("/")
-                    .reverse()
-                    .join("-")
-                );
-
-
-            return fechaA-fechaB;
-
+            return new Date(
+                a.split("/").reverse().join("-")
+            )
+            -
+            new Date(
+                b.split("/").reverse().join("-")
+            );
 
         });
 
 
 
-    graficoEvolucion =
-    new Chart(canvas,{
+    chartEvolucion =
+        new Chart(
+            canvas,
+            {
 
+            type:"line",
 
-        type:"line",
+            data:{
 
+                labels:fechasOrdenadas,
 
-        data:{
+                datasets:[{
 
+                    label:"Ventas diarias",
 
-            labels:fechasOrdenadas,
-
-
-            datasets:[{
-
-
-                label:"Ventas diarias",
-
-
-                data:
+                    data:
                     fechasOrdenadas.map(
                         f=>fechas[f]
                     ),
 
+                    tension:0.3
 
-                tension:0.3
+                }]
 
+            },
 
-            }]
+            options:{
 
-        },
+                responsive:true,
 
+                scales:{
 
-        options:{
+                    y:{
 
+                        beginAtZero:true
 
-            responsive:true,
-
-
-            scales:{
-
-
-                y:{
-
-                    beginAtZero:true
+                    }
 
                 }
 
             }
 
-
-        }
-
-
-    });
+        });
 
 
 }
