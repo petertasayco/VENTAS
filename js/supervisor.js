@@ -22,12 +22,15 @@ let rankingEquipo = [];
 // INICIO
 //===========================================
 
-document.addEventListener("DOMContentLoaded", iniciar);
+document.addEventListener(
+    "DOMContentLoaded",
+    iniciar
+);
 
 
-async function iniciar() {
+async function iniciar(){
 
-    try {
+    try{
 
         mostrarSpinner();
 
@@ -47,15 +50,21 @@ async function iniciar() {
 
     }
 
-    catch (error) {
+    catch(error){
 
-        console.error("Error supervisor:", error);
+        console.error(
+            "Error supervisor:",
+            error
+        );
 
-        mostrarToast(MENSAJES.error, "error");
+        mostrarToast(
+            MENSAJES.error,
+            "error"
+        );
 
     }
 
-    finally {
+    finally{
 
         ocultarSpinner();
 
@@ -64,99 +73,198 @@ async function iniciar() {
 }
 
 
+
 //===========================================
 // OBTENER SUPERVISOR URL
 //===========================================
 
-function obtenerSupervisorURL() {
+function obtenerSupervisorURL(){
 
-    const params = new URLSearchParams(window.location.search);
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-    supervisorActual = decodeURIComponent(
-        params.get("id") || ""
-    );
+
+    supervisorActual =
+        decodeURIComponent(
+            params.get("id") || ""
+        );
 
 }
+
 
 
 //===========================================
 // CARGAR DATOS
 //===========================================
 
-function cargarSupervisor() {
+function cargarSupervisor(){
 
-    ventasSupervisor = buscarSupervisor(supervisorActual);
+    ventasSupervisor =
+        buscarSupervisor(
+            supervisorActual
+        );
 
-    ventasSupervisorOriginal = [...ventasSupervisor];
 
-    rankingEquipo = calcularRankingAsesor(ventasSupervisor);
+    ventasSupervisorOriginal =
+        [...ventasSupervisor];
+
+
+    rankingEquipo =
+        calcularRankingAsesor(
+            ventasSupervisor
+        );
 
 }
+
 
 
 //===========================================
-// INFORMACIÓN
+// INFORMACIÓN SUPERIOR
 //===========================================
 
-function actualizarInformacion() {
+function actualizarInformacion(){
 
-    document.getElementById("nombreSupervisor").textContent =
-        supervisorActual || "-";
+    const nombre =
+        document.getElementById(
+            "nombreSupervisor"
+        );
 
-    document.getElementById("cantidadAsesores").textContent =
-        rankingEquipo.length;
+
+    if(nombre){
+
+        nombre.textContent =
+            supervisorActual || "-";
+
+    }
+
+
+    const cantidad =
+        document.getElementById(
+            "kpiAsesores"
+        );
+
+
+    if(cantidad){
+
+        cantidad.textContent =
+            rankingEquipo.length;
+
+    }
 
 }
+
 
 
 //===========================================
 // KPI
 //===========================================
 
-function calcularKPIs() {
+function calcularKPIs(){
 
     actualizarInformacion();
 
-    const kpi = obtenerKPIs(ventasSupervisor);
 
-    document.getElementById("kpiVentas").textContent =
-        kpi.ventas;
+    const kpi =
+        obtenerKPIs(
+            ventasSupervisor
+        );
 
-    document.getElementById("kpiMovil").textContent =
-        formatearDinero(kpi.upMovil);
 
-    document.getElementById("kpiHogar").textContent =
-        formatearDinero(kpi.upHogar);
+    const elementos = {
 
-    document.getElementById("kpiMigraciones").textContent =
-        kpi.migraciones;
 
-    document.getElementById("kpiTotal").textContent =
-        formatearDinero(kpi.total);
+        kpiVentas:
+            kpi.ventas,
+
+
+        kpiMovil:
+            formatearDinero(
+                kpi.upMovil
+            ),
+
+
+        kpiHogar:
+            formatearDinero(
+                kpi.upHogar
+            ),
+
+
+        kpiMigraciones:
+            kpi.migraciones,
+
+
+        kpiTotal:
+            formatearDinero(
+                kpi.total
+            ),
+
+
+        kpiComision:
+            formatearDinero(
+                kpi.total
+            )
+
+    };
+
+
+    Object.entries(elementos)
+    .forEach(([id,valor])=>{
+
+
+        const elemento =
+            document.getElementById(id);
+
+
+        if(elemento){
+
+            elemento.textContent =
+                valor;
+
+        }
+
+
+    });
+
 
 }
 
 
+
 //===========================================
-// RANKING
+// RANKING EQUIPO
 //===========================================
 
-function dibujarRankingEquipo() {
+function dibujarRankingEquipo(){
+
 
     const tbody =
-        document.getElementById("tablaAsesores");
+        document.getElementById(
+            "tablaRanking"
+        );
 
-    if (!tbody) return;
+
+    if(!tbody)
+        return;
+
 
     let html = "";
 
-    rankingEquipo.forEach((asesor, index) => {
+
+    rankingEquipo.forEach(
+        (asesor,index)=>{
+
 
         html += `
 
-        <tr class="${clasePosicion(index + 1)}">
+        <tr class="${clasePosicion(index+1)}">
 
-            <td>${medalla(index + 1)}</td>
+
+            <td>
+                ${medalla(index+1)}
+            </td>
+
 
             <td>
 
@@ -168,143 +276,232 @@ function dibujarRankingEquipo() {
 
             </td>
 
-            <td>${formatearDinero(asesor.upMovil)}</td>
 
-            <td>${asesor.migraciones}</td>
+            <td>
+                ${formatearDinero(asesor.upMovil)}
+            </td>
 
-            <td>${formatearDinero(asesor.upHogar)}</td>
 
-            <td>${formatearDinero(asesor.total)}</td>
+            <td>
+                ${asesor.migraciones}
+            </td>
+
+
+            <td>
+                ${formatearDinero(asesor.upHogar)}
+            </td>
+
+
+            <td>
+                ${formatearDinero(asesor.total)}
+            </td>
+
 
         </tr>
 
         `;
 
+
     });
+
 
     tbody.innerHTML = html;
 
+
 }
+
 
 
 //===========================================
 // TABLA VENTAS
 //===========================================
 
-function dibujarTablaVentas() {
+function dibujarTablaVentas(){
+
 
     const tbody =
-        document.getElementById("tablaVentas");
+        document.getElementById(
+            "tablaVentas"
+        );
 
-    if (!tbody) return;
 
-    let html = "";
+    if(!tbody)
+        return;
 
-    ventasSupervisor.forEach(v => {
+
+    let html="";
+
+
+    ventasSupervisor.forEach(v=>{
+
 
         html += `
 
         <tr>
 
-            <td>${formatearFecha(v.fechaActivacion)}</td>
 
-            <td>${v.asesor}</td>
+            <td>
+                ${formatearFecha(v.fechaActivacion)}
+            </td>
 
-            <td>${v.tipoVenta}</td>
 
-            <td>${v.cliente}</td>
+            <td>
+                ${v.asesor || "-"}
+            </td>
 
-            <td>${formatearDinero(v.diferencia)}</td>
+
+            <td>
+                ${v.cliente || "-"}
+            </td>
+
+
+            <td>
+                ${v.tipoVenta || "-"}
+            </td>
+
+
+            <td>
+                ${v.tarifaAnterior || "-"}
+            </td>
+
+
+            <td>
+                ${v.tarifaNueva || "-"}
+            </td>
+
+
+            <td>
+                ${formatearDinero(v.diferencia)}
+            </td>
+
 
             <td>
 
                 <span class="${obtenerClaseEstado(v.estadoCredito)}">
 
-                    ${v.estadoCredito}
+                    ${v.estadoCredito || "-"}
 
                 </span>
 
             </td>
 
+
         </tr>
 
         `;
 
+
     });
+
 
     tbody.innerHTML = html;
 
+
 }
+
 
 
 //===========================================
 // EVENTOS
 //===========================================
 
-function cargarEventos() {
+function cargarEventos(){
+
 
     document
         .getElementById("btnFiltrar")
-        ?.addEventListener("click", aplicarFiltros);
+        ?.addEventListener(
+            "click",
+            aplicarFiltros
+        );
+
 
     document
         .getElementById("btnExcel")
-        ?.addEventListener("click", exportarExcel);
+        ?.addEventListener(
+            "click",
+            exportarExcel
+        );
+
 
     document
         .getElementById("btnPDF")
-        ?.addEventListener("click", exportarPDF);
+        ?.addEventListener(
+            "click",
+            exportarPDF
+        );
 
 }
+
 
 
 //===========================================
 // FILTRAR
 //===========================================
 
-function aplicarFiltros() {
+function aplicarFiltros(){
+
 
     const datos =
-        filtrarVentas(ventasSupervisorOriginal);
+        filtrarVentas(
+            ventasSupervisorOriginal
+        );
 
-    ventasSupervisor = [...datos];
+
+    ventasSupervisor =
+        [...datos];
+
 
     rankingEquipo =
-        calcularRankingAsesor(ventasSupervisor);
+        calcularRankingAsesor(
+            ventasSupervisor
+        );
+
 
     calcularKPIs();
 
+
     dibujarRankingEquipo();
 
+
     dibujarTablaVentas();
+
 
 }
 
 
+
 //===========================================
-// CLASE POSICIÓN
+// POSICIONES
 //===========================================
 
-function clasePosicion(posicion) {
+function clasePosicion(posicion){
 
-    if (posicion === 1) return "top1";
+    if(posicion===1)
+        return "top1";
 
-    if (posicion === 2) return "top2";
 
-    if (posicion === 3) return "top3";
+    if(posicion===2)
+        return "top2";
+
+
+    if(posicion===3)
+        return "top3";
+
 
     return "";
 
 }
 
 
+
 //===========================================
 // MEDALLAS
 //===========================================
 
-function medalla(posicion) {
+function medalla(posicion){
 
-    switch (posicion) {
+    switch(posicion){
 
         case 1:
             return "🥇";
