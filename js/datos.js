@@ -205,53 +205,60 @@ function obtenerKPIs(lista) {
 // RANKING DE ASESORES
 //===========================================
 
-function calcularRankingAsesor(lista) {
+function calcularRankingAsesor(lista){
 
     const ranking = {};
 
-    lista.forEach(v => {
+    lista.forEach(v=>{
 
         const nombre = v.asesor;
 
-        if (!nombre) return;
+        if(!nombre) return;
 
-        if (!ranking[nombre]) {
 
-            ranking[nombre] = {
+        if(!ranking[nombre]){
+
+            ranking[nombre]={
 
                 nombre,
 
                 supervisor: v.supervisor || "",
 
-                ventas: 0,
+                ventas:0,
 
-                upMovil: 0,
+                upMovil:0,
 
-                upHogar: 0,
+                upHogar:0,
 
-                migraciones: 0,
+                migraciones:0,
 
-                total: 0
+                total:0
 
             };
 
         }
 
+
         ranking[nombre].ventas++;
 
-        switch (v.tipoVenta) {
+
+        switch(v.tipoVenta){
 
             case TIPOS_VENTA.MOVIL:
 
-                ranking[nombre].upMovil += v.diferencia;
+                ranking[nombre].upMovil += 
+                    Number(v.diferencia) || 0;
 
                 break;
+
 
             case TIPOS_VENTA.HOGAR:
 
-                ranking[nombre].upHogar += v.diferencia;
+                ranking[nombre].upHogar += 
+                    Number(v.diferencia) || 0;
 
                 break;
+
 
             case TIPOS_VENTA.MIGRACION:
 
@@ -261,25 +268,30 @@ function calcularRankingAsesor(lista) {
 
         }
 
+
+        ranking[nombre].total =
+            ranking[nombre].upMovil +
+            ranking[nombre].upHogar;
+
+
     });
 
-    Object.values(ranking).forEach(r => {
 
-        r.total = r.upMovil + r.upHogar;
+    return Object.values(ranking).sort((a,b)=>{
+
+        return (
+
+            b.total - a.total ||
+
+            b.upMovil - a.upMovil ||
+
+            b.migraciones - a.migraciones ||
+
+            b.upHogar - a.upHogar
+
+        );
 
     });
-
-    return Object.values(ranking).sort((a, b) =>
-
-        b.total - a.total ||
-
-        b.upMovil - a.upMovil ||
-
-        b.migraciones - a.migraciones ||
-
-        b.upHogar - a.upHogar
-
-    );
 
 }
 
