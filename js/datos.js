@@ -162,6 +162,34 @@ function buscarVenta(id) {
     return ventas.find(v => v.id === Number(id));
 
 }
+/////////////////////////////////////////////
+function esVentaValida(v){
+
+    const estadoCredito =
+        String(v.estadoCredito || "")
+            .trim()
+            .toUpperCase();
+
+    const estadoGlobal =
+        String(v["Estado Global"] || "")
+            .trim()
+            .toUpperCase();
+
+
+    return (
+
+        estadoCredito === "APROBADO"
+
+        ||
+
+        (
+            estadoCredito === "NEGADO" &&
+            estadoGlobal === "COMPLETADO"
+        )
+
+    );
+
+}
 
 //===========================================
 // FILTRO DE VENTAS VÁLIDAS POR TIPO
@@ -169,47 +197,20 @@ function buscarVenta(id) {
 
 function filtrarVentasValidas(lista){
 
-    return lista.filter(v=>{
+    return lista.filter(v => {
 
-        const tipo = 
-            (v.tipoVenta || "")
-            .toUpperCase();
+        const tipo =
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
 
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
+        const esTipoVenta =
+            tipo === "UP GRADE MOVIL" ||
+            tipo === "UP GRADE HOGAR" ||
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES";
 
-
-        // UP MOVIL
-        if(tipo === "UP GRADE MOVIL" || tipo === "UP GRADE MOVIL"){
-
-            return estado === "APROBADO";
-
-        }
-
-
-        // UP HOGAR
-        if(tipo === "UP GRADE HOGAR"){
-
-            return estado === "APROBADO";
-
-        }
-
-
-        // MIGRACIONES
-        if(tipo === "MIGRACIONES" || tipo === "MIGRACION"){
-
-            return (
-                estado === "APROBADO" ||
-                estado === "PENDIENTE BIOMETRIA"
-            );
-
-        }
-
-
-        return false;
-
+        return esTipoVenta && esVentaValida(v);
 
     });
 
@@ -361,9 +362,7 @@ function calcularRankingAsesor(lista){
 
     const ranking = {};
 
-
-    lista.forEach(v=>{
-
+    lista.forEach(v => {
 
         const nombre = v.asesor;
 
@@ -372,52 +371,38 @@ function calcularRankingAsesor(lista){
 
         if(!ranking[nombre]){
 
-            ranking[nombre]={
+            ranking[nombre] = {
 
                 nombre,
 
-                supervisor:v.supervisor || "",
+                supervisor: v.supervisor || "",
 
-                ventas:0,
+                ventas: 0,
 
-                upMovil:0,
+                upMovil: 0,
 
-                upHogar:0,
+                upHogar: 0,
 
-                migraciones:0,
+                migraciones: 0,
 
-                total:0
+                total: 0
 
             };
 
         }
 
 
-
-        ranking[nombre].ventas++;
-
-
-
-        const tipo = 
-            (v.tipoVenta || "")
-            .toUpperCase()
-            .trim();
+        const tipo =
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
 
 
-
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
-
-
-
+        //===========================================
         // UP MOVIL
+        //===========================================
 
-        if(
-            tipo === "UP GRADE MOVIL" &&
-            estado === "APROBADO"
-        ){
+        if(tipo === "UP GRADE MOVIL"){
 
             ranking[nombre].upMovil +=
                 Number(v.diferencia) || 0;
@@ -425,13 +410,11 @@ function calcularRankingAsesor(lista){
         }
 
 
-
+        //===========================================
         // UP HOGAR
+        //===========================================
 
-        if(
-            tipo === "UP GRADE HOGAR" &&
-            estado === "APROBADO"
-        ){
+        else if(tipo === "UP GRADE HOGAR"){
 
             ranking[nombre].upHogar +=
                 Number(v.diferencia) || 0;
@@ -439,17 +422,13 @@ function calcularRankingAsesor(lista){
         }
 
 
-
+        //===========================================
         // MIGRACIONES
+        //===========================================
 
-        if(
-            (tipo === "MIGRACION" ||
-             tipo === "MIGRACIONES")
-            &&
-            (
-                estado === "APROBADO" ||
-                estado === "PENDIENTE BIOMETRIA"
-            )
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
         ){
 
             ranking[nombre].migraciones++;
@@ -457,34 +436,28 @@ function calcularRankingAsesor(lista){
         }
 
 
+        ranking[nombre].ventas++;
 
-        ranking[nombre].total =
-            ranking[nombre].upMovil +
-            ranking[nombre].upHogar;
-
+        ranking[nombre].total++;
 
     });
-
 
 
     return Object.values(ranking)
-    .sort((a,b)=>{
 
+        .sort((a,b) => {
 
-        return (
+            return (
 
-            b.total - a.total ||
+                b.upMovil - a.upMovil ||
 
-            b.upMovil - a.upMovil ||
+                b.migraciones - a.migraciones ||
 
-            b.migraciones - a.migraciones ||
+                b.upHogar - a.upHogar
 
-            b.upHogar - a.upHogar
+            );
 
-        );
-
-
-    });
+        });
 
 }
 
