@@ -17,8 +17,9 @@ let ventasSupervisorOriginal = [];
 
 let rankingEquipo = [];
 
-let graficoAsesores;
-let graficoEvolucion;
+let graficoAsesores = null;
+
+let graficoEvolucion = null;
 
 
 //===========================================
@@ -82,7 +83,6 @@ async function iniciar(){
 }
 
 
-
 //===========================================
 // OBTENER SUPERVISOR URL
 //===========================================
@@ -101,7 +101,6 @@ function obtenerSupervisorURL(){
         );
 
 }
-
 
 
 //===========================================
@@ -126,7 +125,6 @@ function cargarSupervisor(){
         );
 
 }
-
 
 
 //===========================================
@@ -165,7 +163,6 @@ function actualizarInformacion(){
 }
 
 
-
 //===========================================
 // KPI
 //===========================================
@@ -176,113 +173,186 @@ function calcularKPIs(){
 
 
     let upMovil = 0;
+
     let migraciones = 0;
+
     let upHogar = 0;
 
 
     let upMovilNegados = 0;
+
     let migracionesNegadas = 0;
+
     let upHogarNegados = 0;
 
 
+    ventasSupervisor.forEach(v => {
 
-    ventasSupervisor.forEach(v=>{
+
+        /*
+         * =======================================
+         * REGLA CENTRAL
+         * =======================================
+         *
+         * APROBADO                  → CUENTA
+         * PENDIENTE BIOMETRIA      → CUENTA
+         * NEGADO + COMPLETADO      → CUENTA
+         * CANCELADO                 → NO CUENTA
+         * NEGADO sin COMPLETADO     → NO CUENTA
+         *
+         */
+
+        if(!esVentaValida(v)){
+
+            return;
+
+        }
 
 
         const tipo =
-            (v.tipoVenta || "")
-            .toLowerCase();
-
-
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
 
 
         const diferencia =
             Number(v.diferencia) || 0;
 
 
+        //-----------------------------------
+        // UP MOVIL
+        //-----------------------------------
 
-        //===================================
-        // APROBADOS
-        //===================================
+        if(tipo === "UP GRADE MOVIL"){
 
-        if(
-            estado === "APROBADO" ||
-            (
-                tipo.includes("migracion") &&
-                estado === "PENDIENTE BIOMETRIA"
-            )
+            upMovil += diferencia;
+
+        }
+
+
+        //-----------------------------------
+        // UP HOGAR
+        //-----------------------------------
+
+        else if(tipo === "UP GRADE HOGAR"){
+
+            upHogar += diferencia;
+
+        }
+
+
+        //-----------------------------------
+        // MIGRACIONES
+        //-----------------------------------
+
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
         ){
 
-
-            if(tipo.includes("movil")){
-
-                upMovil += diferencia;
-
-            }
-
-
-            else if(tipo.includes("hogar")){
-
-                upHogar += diferencia;
-
-            }
-
-
-            else if(tipo.includes("migracion")){
-
-                migraciones++;
-
-            }
-
+            migraciones++;
 
         }
-
-
-
-        //===================================
-        // NEGADOS
-        //===================================
-
-        if(estado === "NEGADO"){
-
-
-            if(tipo.includes("movil")){
-
-                upMovilNegados += diferencia;
-
-            }
-
-
-            else if(tipo.includes("hogar")){
-
-                upHogarNegados += diferencia;
-
-            }
-
-
-            else if(tipo.includes("migracion")){
-
-                migracionesNegadas++;
-
-            }
-
-
-        }
-
 
     });
 
+
+    /*
+     * =======================================
+     * NEGADOS
+     * =======================================
+     *
+     * Estos contadores son solamente
+     * informativos.
+     *
+     * NEGADO + COMPLETADO ya es una venta
+     * válida y por lo tanto NO debe aparecer
+     * como una venta negada pendiente.
+     *
+     */
+
+
+    ventasSupervisor.forEach(v => {
+
+
+        const estado =
+            String(v.estadoCredito || "")
+                .trim()
+                .toUpperCase();
+
+
+        const estadoGlobal =
+            String(
+                v["Estado Global"] ||
+                v.estadoGlobal ||
+                ""
+            )
+            .trim()
+            .toUpperCase();
+
+
+        /*
+         * Solo mostramos como "negado"
+         * los NEGADOS que NO están completados.
+         */
+
+        if(
+            estado !== "NEGADO" ||
+            estadoGlobal === "COMPLETADO"
+        ){
+
+            return;
+
+        }
+
+
+        const tipo =
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
+
+
+        const diferencia =
+            Number(v.diferencia) || 0;
+
+
+        if(
+            tipo === "UP GRADE MOVIL"
+        ){
+
+            upMovilNegados += diferencia;
+
+        }
+
+
+        else if(
+            tipo === "UP GRADE HOGAR"
+        ){
+
+            upHogarNegados += diferencia;
+
+        }
+
+
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
+        ){
+
+            migracionesNegadas++;
+
+        }
+
+    });
 
 
     const elementos = {
 
 
         kpiMovil:
-            formatearDinero(upMovil),
+            formatearDinero(
+                upMovil
+            ),
 
 
         kpiMigraciones:
@@ -290,12 +360,15 @@ function calcularKPIs(){
 
 
         kpiHogar:
-            formatearDinero(upHogar),
-
+            formatearDinero(
+                upHogar
+            ),
 
 
         kpiMovilNegados:
-            formatearDinero(upMovilNegados),
+            formatearDinero(
+                upMovilNegados
+            ),
 
 
         kpiMigracionesNegadas:
@@ -303,30 +376,28 @@ function calcularKPIs(){
 
 
         kpiHogarNegados:
-            formatearDinero(upHogarNegados)
-
+            formatearDinero(
+                upHogarNegados
+            )
 
     };
 
 
-
     Object.entries(elementos)
-    .forEach(([id,valor])=>{
+        .forEach(([id,valor]) => {
+
+            const elemento =
+                document.getElementById(id);
 
 
-        const elemento =
-            document.getElementById(id);
+            if(elemento){
 
+                elemento.textContent =
+                    valor;
 
-        if(elemento){
+            }
 
-            elemento.textContent = valor;
-
-        }
-
-
-    });
-
+        });
 
 }
 
@@ -336,7 +407,6 @@ function calcularKPIs(){
 //===========================================
 
 function dibujarRankingEquipo(){
-
 
     const tbody =
         document.getElementById(
@@ -352,13 +422,12 @@ function dibujarRankingEquipo(){
 
 
     rankingEquipo.forEach(
-        (asesor,index)=>{
+        (asesor,index) => {
 
 
         html += `
 
         <tr class="${clasePosicion(index+1)}">
-
 
             <td>
                 ${medalla(index+1)}
@@ -395,20 +464,18 @@ function dibujarRankingEquipo(){
                 ${formatearDinero(asesor.total)}
             </td>
 
-
         </tr>
 
         `;
 
-
     });
 
 
-    tbody.innerHTML = html;
+    tbody.innerHTML =
+        html;
 
 
 }
-
 
 
 //===========================================
@@ -416,7 +483,6 @@ function dibujarRankingEquipo(){
 //===========================================
 
 function dibujarTablaVentas(){
-
 
     const tbody =
         document.getElementById(
@@ -428,16 +494,21 @@ function dibujarTablaVentas(){
         return;
 
 
-    let html="";
+    let html = "";
 
 
-    ventasSupervisor.forEach(v=>{
+    /*
+     * MOSTRAR SOLO VENTAS VÁLIDAS
+     */
+
+    ventasSupervisor
+        .filter(v => esVentaValida(v))
+        .forEach(v => {
 
 
         html += `
 
         <tr>
-
 
             <td>
                 ${formatearFecha(v.fechaActivacion)}
@@ -484,20 +555,39 @@ function dibujarTablaVentas(){
 
             </td>
 
-
         </tr>
 
         `;
 
-
     });
 
 
-    tbody.innerHTML = html;
+    tbody.innerHTML =
+        html;
 
+
+    if(!html){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    style="text-align:center;"
+                >
+
+                    ${MENSAJES.sinDatos}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
 
 }
-
 
 
 //===========================================
@@ -505,7 +595,6 @@ function dibujarTablaVentas(){
 //===========================================
 
 function cargarEventos(){
-
 
     document
         .getElementById("btnFiltrar")
@@ -533,13 +622,11 @@ function cargarEventos(){
 }
 
 
-
 //===========================================
 // FILTRAR
 //===========================================
 
 function aplicarFiltros(){
-
 
     const datos =
         filtrarVentas(
@@ -559,15 +646,13 @@ function aplicarFiltros(){
 
     calcularKPIs();
 
-
     dibujarRankingEquipo();
-
 
     dibujarTablaVentas();
 
+    dibujarGraficos();
 
 }
-
 
 
 //===========================================
@@ -576,22 +661,21 @@ function aplicarFiltros(){
 
 function clasePosicion(posicion){
 
-    if(posicion===1)
+    if(posicion === 1)
         return "top1";
 
 
-    if(posicion===2)
+    if(posicion === 2)
         return "top2";
 
 
-    if(posicion===3)
+    if(posicion === 3)
         return "top3";
 
 
     return "";
 
 }
-
 
 
 //===========================================
@@ -618,21 +702,18 @@ function medalla(posicion){
 
 }
 
+
 //===========================================
 // GRAFICOS
 //===========================================
 
 function dibujarGraficos(){
 
-
     dibujarProduccionAsesor();
-
 
     dibujarEvolucionDiaria();
 
-
 }
-
 
 
 //===========================================
@@ -641,21 +722,20 @@ function dibujarGraficos(){
 
 function dibujarProduccionAsesor(){
 
-
     const canvas =
-        document.getElementById("graficoAsesores");
+        document.getElementById(
+            "graficoAsesores"
+        );
 
 
     if(!canvas)
         return;
 
 
-
     const ranking =
         calcularRankingAsesor(
             ventasSupervisor
         );
-
 
 
     if(graficoAsesores){
@@ -665,86 +745,101 @@ function dibujarProduccionAsesor(){
     }
 
 
+    graficoAsesores =
+        new Chart(
+            canvas,
+            {
 
-    graficoAsesores = new Chart(
-        canvas,
-        {
+                type: "bar",
 
-            type:"bar",
+                data: {
 
-
-            data:{
-
-
-                labels:
-                    ranking.map(
-                        x=>x.nombre
-                    ),
-
-
-                datasets:[{
-
-
-                    label:"UP Móvil",
-
-
-                    data:
+                    labels:
                         ranking.map(
-                            x=>x.upMovil
-                        )
+                            x => x.nombre
+                        ),
 
+                    datasets: [
 
-                }]
+                        {
 
+                            label:
+                                "UP Móvil",
 
-            },
+                            data:
+                                ranking.map(
+                                    x => x.upMovil
+                                )
 
+                        },
 
-            options:{
+                        {
 
+                            label:
+                                "Migraciones",
 
-                responsive:true,
+                            data:
+                                ranking.map(
+                                    x => x.migraciones
+                                )
 
+                        },
 
-                plugins:{
+                        {
 
+                            label:
+                                "UP Hogar",
 
-                    legend:{
+                            data:
+                                ranking.map(
+                                    x => x.upHogar
+                                )
 
-                        display:true
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+
+                        }
 
                     }
-
 
                 }
 
             }
 
-
-        }
-
-    );
-
+        );
 
 }
-
 
 
 //===========================================
 // EVOLUCIÓN DIARIA
 //===========================================
 
-
 function dibujarEvolucionDiaria(){
 
     const canvas =
-        document.getElementById("graficoEvolucion");
+        document.getElementById(
+            "graficoEvolucion"
+        );
 
 
-    if(!canvas) return;
+    if(!canvas)
+        return;
 
 
-    // destruir gráfico anterior
     if(graficoEvolucion){
 
         graficoEvolucion.destroy();
@@ -755,12 +850,48 @@ function dibujarEvolucionDiaria(){
     const datos = {};
 
 
-    ventasSupervisor.forEach(v=>{
+    /*
+     * SOLO VENTAS VÁLIDAS
+     */
+
+    ventasSupervisor.forEach(v => {
+
+
+        if(!esVentaValida(v)){
+
+            return;
+
+        }
 
 
         const fecha =
-            formatearFecha(v.fechaActivacion);
+            formatearFecha(
+                v.fechaActivacion
+            );
 
+
+        if(!fecha){
+
+            return;
+
+        }
+
+
+        const tipo =
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
+
+
+        /*
+         * Para la evolución contamos ventas,
+         * independientemente de si son:
+         *
+         * UP Móvil
+         * UP Hogar
+         * Migraciones
+         *
+         */
 
         if(!datos[fecha]){
 
@@ -769,51 +900,45 @@ function dibujarEvolucionDiaria(){
         }
 
 
-        // sumar producción aprobada
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
-
-
-        if(
-            estado === "APROBADO" ||
-            estado === "PENDIENTE BIOMETRIA"
-        ){
-
-            datos[fecha] += Number(v.diferencia) || 0;
-
-        }
-
+        datos[fecha]++;
 
     });
 
 
-
-    // ordenar fechas antigua -> reciente
+    //=======================================
+    // ORDENAR FECHAS
+    //=======================================
 
     const fechasOrdenadas =
         Object.keys(datos)
-        .sort((a,b)=>{
+            .sort((a,b) => {
+
+                const partesA =
+                    a.split("/");
+
+                const partesB =
+                    b.split("/");
 
 
-            const fechaA =
-                new Date(
-                    a.split("/").reverse().join("-")
-                );
+                const fechaA =
+                    new Date(
+                        partesA[2],
+                        partesA[1] - 1,
+                        partesA[0]
+                    );
 
 
-            const fechaB =
-                new Date(
-                    b.split("/").reverse().join("-")
-                );
+                const fechaB =
+                    new Date(
+                        partesB[2],
+                        partesB[1] - 1,
+                        partesB[0]
+                    );
 
 
-            return fechaA - fechaB;
+                return fechaA - fechaB;
 
-
-        });
-
+            });
 
 
     const valores =
@@ -822,104 +947,93 @@ function dibujarEvolucionDiaria(){
         );
 
 
-
     graficoEvolucion =
-        new Chart(canvas,{
+        new Chart(
+            canvas,
+            {
 
+                type: "line",
 
-            type:"line",
+                data: {
 
+                    labels:
+                        fechasOrdenadas,
 
-            data:{
+                    datasets: [
 
+                        {
 
-                labels:fechasOrdenadas,
+                            label:
+                                "Ventas diarias",
 
+                            data:
+                                valores,
 
-                datasets:[{
+                            tension:
+                                0.3,
 
-
-                    label:"Producción diaria",
-
-
-                    data:valores,
-
-
-                    tension:0.3,
-
-
-                    fill:false
-
-
-                }]
-
-
-            },
-
-
-            options:{
-
-
-                responsive:true,
-
-
-                plugins:{
-
-
-                    legend:{
-
-
-                        display:true
-
-
-                    }
-
-
-                },
-
-
-                scales:{
-
-
-                    x:{
-
-
-                        ticks:{
-
-
-                            autoSkip:false
-
+                            fill:
+                                false
 
                         }
 
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+
+                        }
 
                     },
 
+                    scales: {
 
-                    y:{
+                        x: {
 
+                            ticks: {
 
-                        beginAtZero:true
+                                autoSkip: false
 
+                            }
+
+                        },
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
 
                     }
 
-
                 }
-
 
             }
 
-
-        });
-
+        );
 
 }
+
+
+//===========================================
+// CARGAR ASESORES
+//===========================================
 
 function cargarAsesoresSupervisor(){
 
     const select =
-        document.getElementById("asesor");
+        document.getElementById(
+            "asesor"
+        );
 
 
     if(!select)
@@ -928,33 +1042,35 @@ function cargarAsesoresSupervisor(){
 
     select.innerHTML =
     `
-    <option value="">
-        Todos
-    </option>
+        <option value="">
+            Todos
+        </option>
     `;
 
 
     const lista =
-        [...new Set(
-            ventasSupervisorOriginal
-            .map(v=>v.asesor)
-            .filter(Boolean)
-        )];
+        [
+            ...new Set(
+
+                ventasSupervisorOriginal
+                    .map(v => v.asesor)
+                    .filter(Boolean)
+
+            )
+        ];
 
 
     lista.sort();
 
 
-    lista.forEach(nombre=>{
-
+    lista.forEach(nombre => {
 
         select.innerHTML +=
         `
-        <option value="${nombre}">
-            ${nombre}
-        </option>
+            <option value="${nombre}">
+                ${nombre}
+            </option>
         `;
-
 
     });
 

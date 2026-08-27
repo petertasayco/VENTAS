@@ -33,13 +33,13 @@ async function iniciarDatos(force = false) {
         return;
     }
 
-  const respuesta = await cargarVentas();
+    const respuesta = await cargarVentas();
 
-ventas = respuesta;
+    ventas = respuesta;
 
-ventasOriginales = [...ventas];
+    ventasOriginales = [...ventas];
 
-ventasValidas = filtrarVentasValidas(ventas);
+    ventasValidas = filtrarVentasValidas(ventas);
 
     obtenerCatalogos();
 
@@ -119,7 +119,7 @@ function obtenerFechaActualizacion(){
     return new Date(
         Math.max(
             ...fechas.map(
-                f=>f.getTime()
+                f => f.getTime()
             )
         )
     );
@@ -134,7 +134,8 @@ function obtenerFechaActualizacion(){
 function buscarAsesor(nombre) {
 
     return ventas.filter(v =>
-        v.asesor.toUpperCase() === nombre.toUpperCase()
+        String(v.asesor || "").toUpperCase() ===
+        String(nombre || "").toUpperCase()
     );
 
 }
@@ -147,7 +148,8 @@ function buscarAsesor(nombre) {
 function buscarSupervisor(nombre) {
 
     return ventas.filter(v =>
-        v.supervisor.toUpperCase() === nombre.toUpperCase()
+        String(v.supervisor || "").toUpperCase() ===
+        String(nombre || "").toUpperCase()
     );
 
 }
@@ -159,11 +161,29 @@ function buscarSupervisor(nombre) {
 
 function buscarVenta(id) {
 
-    return ventas.find(v => v.id === Number(id));
+    return ventas.find(v =>
+        v.id === Number(id)
+    );
 
 }
-/////////////////////////////////////////////
-function esVentaValida(v){
+
+
+//===========================================
+// VALIDAR VENTA
+//===========================================
+//
+// REGLA:
+//
+// APROBADO                    → CUENTA
+// PENDIENTE BIOMETRIA        → CUENTA
+// NEGADO + COMPLETADO        → CUENTA
+// NEGADO + cualquier otro    → NO CUENTA
+// CANCELADO                  → NO CUENTA
+// Cualquier otro estado     → NO CUENTA
+//
+//===========================================
+
+function esVentaValida(v) {
 
     const estadoCredito =
         String(v.estadoCredito || "")
@@ -171,25 +191,60 @@ function esVentaValida(v){
             .toUpperCase();
 
     const estadoGlobal =
-        String(v["Estado Global"] || "")
+        String(v.estadoGlobal || v["Estado Global"] || "")
             .trim()
             .toUpperCase();
 
 
-    return (
+    // =========================================
+    // CANCELADO → NO CUENTA
+    // =========================================
 
-        estadoCredito === "APROBADO"
+    if (
+        estadoCredito === "CANCELADO" ||
+        estadoGlobal === "CANCELADA"
+    ) {
+        return false;
+    }
 
-        ||
 
-        (
-            estadoCredito === "NEGADO" &&
-            estadoGlobal === "COMPLETADO"
-        )
+    // =========================================
+    // APROBADO → CUENTA
+    // =========================================
 
-    );
+    if (estadoCredito === "APROBADO") {
+        return true;
+    }
 
+
+    // =========================================
+    // PENDIENTE BIOMETRIA → CUENTA
+    // =========================================
+
+    if (estadoCredito === "PENDIENTE BIOMETRIA") {
+        return true;
+    }
+
+
+    // =========================================
+    // NEGADO + COMPLETADA → CUENTA
+    // =========================================
+
+    if (
+        estadoCredito === "NEGADO" &&
+        estadoGlobal === "COMPLETADA"
+    ) {
+        return true;
+    }
+
+
+    // =========================================
+    // RESTO → NO CUENTA
+    // =========================================
+
+    return false;
 }
+
 
 //===========================================
 // FILTRO DE VENTAS VÁLIDAS POR TIPO
@@ -199,29 +254,81 @@ function filtrarVentasValidas(lista){
 
     return lista.filter(v => {
 
+
+        //-------------------------------------------
+        // VALIDAR ESTADO
+        //-------------------------------------------
+
+        if(!esVentaValida(v)){
+
+            return false;
+
+        }
+
+
+        //-------------------------------------------
+        // VALIDAR TIPO DE VENTA
+        //-------------------------------------------
+
         const tipo =
+
             String(v.tipoVenta || "")
                 .trim()
                 .toUpperCase();
 
-        const esTipoVenta =
-            tipo === "UP GRADE MOVIL" ||
-            tipo === "UP GRADE HOGAR" ||
-            tipo === "MIGRACION" ||
-            tipo === "MIGRACIONES";
 
-        return esTipoVenta && esVentaValida(v);
+        //-------------------------------------------
+        // UP MOVIL
+        //-------------------------------------------
+
+        if(
+            tipo === "UP GRADE MOVIL"
+        ){
+
+            return true;
+
+        }
+
+
+        //-------------------------------------------
+        // UP HOGAR
+        //-------------------------------------------
+
+        if(
+            tipo === "UP GRADE HOGAR"
+        ){
+
+            return true;
+
+        }
+
+
+        //-------------------------------------------
+        // MIGRACIONES
+        //-------------------------------------------
+
+        if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
+        ){
+
+            return true;
+
+        }
+
+
+        return false;
 
     });
 
 }
+
 
 //===========================================
 // OBTENER KPIs
 //===========================================
 
 function obtenerKPIs(lista){
-
 
     let movil = 0;
 
@@ -237,119 +344,94 @@ function obtenerKPIs(lista){
     let migracionesNegadas = 0;
 
 
-    lista.forEach(v=>{
+    lista.forEach(v => {
+
+
+        //-------------------------------------------
+        // SOLO VENTAS VÁLIDAS
+        //-------------------------------------------
+
+        if(!esVentaValida(v)){
+
+            return;
+
+        }
 
 
         const tipo =
-            (v.tipoVenta || "")
-            .toUpperCase();
+
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
 
 
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase();
+        const diferencia =
+
+            Number(v.diferencia) || 0;
 
 
+        //-------------------------------------------
+        // UP MOVIL
+        //-------------------------------------------
 
-        const aprobado =
-            estado === "APROBADO";
+        if(
+            tipo === "UP GRADE MOVIL"
+        ){
 
-
-        const negado =
-            estado === "NEGADO";
-
-
-
-        if(tipo.includes("UP GRADE MOVIL")){
-
-
-            if(aprobado){
-
-                movil += Number(v.diferencia)||0;
-
-            }
-
-
-            if(negado){
-
-                movilNegados++;
-
-            }
-
+            movil += diferencia;
 
         }
 
 
+        //-------------------------------------------
+        // UP HOGAR
+        //-------------------------------------------
 
-        if(tipo.includes("UP GRADE HOGAR")){
+        else if(
+            tipo === "UP GRADE HOGAR"
+        ){
 
-
-            if(aprobado){
-
-                hogar += Number(v.diferencia)||0;
-
-            }
-
-
-            if(negado){
-
-                hogarNegados++;
-
-            }
-
+            hogar += diferencia;
 
         }
 
 
+        //-------------------------------------------
+        // MIGRACIONES
+        //-------------------------------------------
 
-        if(tipo.includes("MIGRACION")){
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
+        ){
 
-
-            if(
-                aprobado ||
-                estado==="PENDIENTE BIOMETRIA"
-            ){
-
-                migraciones++;
-
-            }
-
-
-            if(negado){
-
-                migracionesNegadas++;
-
-            }
-
+            migraciones++;
 
         }
-
 
 
     });
 
 
-
     return {
 
-    ventas: lista.length,
+        ventas: lista.filter(
+            v => esVentaValida(v)
+        ).length,
 
-    upMovil:movil,
+        upMovil: movil,
 
-    upHogar:hogar,
+        upHogar: hogar,
 
-    migraciones:migraciones,
+        migraciones: migraciones,
 
+        upMovilNegados: movilNegados,
 
-    upMovilNegados:movilNegados,
+        upHogarNegados: hogarNegados,
 
-    upHogarNegados:hogarNegados,
+        migracionesNegadas: migracionesNegadas
 
-    migracionesNegadas:migracionesNegadas
-
-
-};
-
+    };
 
 }
 
@@ -362,12 +444,34 @@ function calcularRankingAsesor(lista){
 
     const ranking = {};
 
+
     lista.forEach(v => {
+
+
+        //-------------------------------------------
+        // SOLO VENTAS VÁLIDAS
+        //-------------------------------------------
+
+        if(!esVentaValida(v)){
+
+            return;
+
+        }
+
 
         const nombre = v.asesor;
 
-        if(!nombre) return;
 
+        if(!nombre){
+
+            return;
+
+        }
+
+
+        //-------------------------------------------
+        // CREAR ASESOR
+        //-------------------------------------------
 
         if(!ranking[nombre]){
 
@@ -375,7 +479,8 @@ function calcularRankingAsesor(lista){
 
                 nombre,
 
-                supervisor: v.supervisor || "",
+                supervisor:
+                    v.supervisor || "",
 
                 ventas: 0,
 
@@ -392,39 +497,57 @@ function calcularRankingAsesor(lista){
         }
 
 
+        //-------------------------------------------
+        // TIPO DE VENTA
+        //-------------------------------------------
+
         const tipo =
+
             String(v.tipoVenta || "")
                 .trim()
                 .toUpperCase();
 
 
-        //===========================================
-        // UP MOVIL
-        //===========================================
+        //-------------------------------------------
+        // DIFERENCIA
+        //-------------------------------------------
 
-        if(tipo === "UP GRADE MOVIL"){
+        const diferencia =
+
+            Number(v.diferencia) || 0;
+
+
+        //-------------------------------------------
+        // UP MOVIL
+        //-------------------------------------------
+
+        if(
+            tipo === "UP GRADE MOVIL"
+        ){
 
             ranking[nombre].upMovil +=
-                Number(v.diferencia) || 0;
+                diferencia;
 
         }
 
 
-        //===========================================
+        //-------------------------------------------
         // UP HOGAR
-        //===========================================
+        //-------------------------------------------
 
-        else if(tipo === "UP GRADE HOGAR"){
+        else if(
+            tipo === "UP GRADE HOGAR"
+        ){
 
             ranking[nombre].upHogar +=
-                Number(v.diferencia) || 0;
+                diferencia;
 
         }
 
 
-        //===========================================
+        //-------------------------------------------
         // MIGRACIONES
-        //===========================================
+        //-------------------------------------------
 
         else if(
             tipo === "MIGRACION" ||
@@ -436,25 +559,73 @@ function calcularRankingAsesor(lista){
         }
 
 
-        ranking[nombre].ventas++;
+        //-------------------------------------------
+        // VENTAS
+        //-------------------------------------------
 
-        ranking[nombre].total++;
+        ranking[nombre].ventas++;
 
     });
 
+
+    //-------------------------------------------
+    // TOTAL
+    //-------------------------------------------
+
+    Object.values(ranking).forEach(item => {
+
+        item.total =
+
+            item.upMovil +
+
+            item.upHogar;
+
+    });
+
+
+    //-------------------------------------------
+    // ORDEN DEL RANKING
+    //-------------------------------------------
+    //
+    // 1. Mayor UP Móvil
+    // 2. Mayor Migraciones
+    // 3. Mayor UP Hogar
+    //
+    //-------------------------------------------
 
     return Object.values(ranking)
 
         .sort((a,b) => {
 
+            if(
+                b.upMovil !==
+                a.upMovil
+            ){
+
+                return (
+                    b.upMovil -
+                    a.upMovil
+                );
+
+            }
+
+
+            if(
+                b.migraciones !==
+                a.migraciones
+            ){
+
+                return (
+                    b.migraciones -
+                    a.migraciones
+                );
+
+            }
+
+
             return (
-
-                b.upMovil - a.upMovil ||
-
-                b.migraciones - a.migraciones ||
-
-                b.upHogar - a.upHogar
-
+                b.upHogar -
+                a.upHogar
             );
 
         });
@@ -468,121 +639,192 @@ function calcularRankingAsesor(lista){
 
 function calcularRankingSupervisor(lista){
 
-
     const ranking = {};
 
 
-
-    lista.forEach(v=>{
-
-
-        const nombre = v.supervisor;
+    lista.forEach(v => {
 
 
-        if(!nombre) return;
+        //-------------------------------------------
+        // SOLO VENTAS VÁLIDAS
+        //-------------------------------------------
+
+        if(!esVentaValida(v)){
+
+            return;
+
+        }
 
 
+        const nombre =
+            v.supervisor;
+
+
+        if(!nombre){
+
+            return;
+
+        }
+
+
+        //-------------------------------------------
+        // CREAR SUPERVISOR
+        //-------------------------------------------
 
         if(!ranking[nombre]){
 
-
-            ranking[nombre]={
+            ranking[nombre] = {
 
                 nombre,
 
-                ventas:0,
+                ventas: 0,
 
-                upMovil:0,
+                upMovil: 0,
 
-                upHogar:0,
+                upHogar: 0,
 
-                migraciones:0,
+                migraciones: 0,
 
-                total:0
+                total: 0
 
             };
 
-
         }
 
 
-
-        ranking[nombre].ventas++;
-
-
+        //-------------------------------------------
+        // TIPO
+        //-------------------------------------------
 
         const tipo =
-            (v.tipoVenta || "")
-            .toUpperCase();
+
+            String(v.tipoVenta || "")
+                .trim()
+                .toUpperCase();
 
 
+        //-------------------------------------------
+        // DIFERENCIA
+        //-------------------------------------------
 
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase();
+        const diferencia =
+
+            Number(v.diferencia) || 0;
 
 
+        //-------------------------------------------
+        // UP MOVIL
+        //-------------------------------------------
 
-        if(tipo.includes("UP GRADE MOVIL")
-        && estado==="APROBADO"){
-
+        if(
+            tipo === "UP GRADE MOVIL"
+        ){
 
             ranking[nombre].upMovil +=
-                Number(v.diferencia)||0;
-
+                diferencia;
 
         }
 
 
+        //-------------------------------------------
+        // UP HOGAR
+        //-------------------------------------------
 
-        if(tipo.includes("UP GRADE HOGAR")
-        && estado==="APROBADO"){
-
+        else if(
+            tipo === "UP GRADE HOGAR"
+        ){
 
             ranking[nombre].upHogar +=
-                Number(v.diferencia)||0;
-
+                diferencia;
 
         }
 
 
+        //-------------------------------------------
+        // MIGRACIONES
+        //-------------------------------------------
 
-        if(tipo.includes("MIGRACION")
-        &&
-        (
-            estado==="APROBADO" ||
-            estado==="PENDIENTE BIOMETRIA"
-        )){
-
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
+        ){
 
             ranking[nombre].migraciones++;
 
-
         }
 
 
+        //-------------------------------------------
+        // VENTAS
+        //-------------------------------------------
 
-        ranking[nombre].total =
-            ranking[nombre].upMovil +
-            ranking[nombre].upHogar;
-
-
+        ranking[nombre].ventas++;
 
     });
 
 
+    //-------------------------------------------
+    // TOTAL
+    //-------------------------------------------
+
+    Object.values(ranking).forEach(item => {
+
+        item.total =
+
+            item.upMovil +
+
+            item.upHogar;
+
+    });
+
+
+    //-------------------------------------------
+    // ORDEN
+    //-------------------------------------------
 
     return Object.values(ranking)
-    .sort((a,b)=>
 
-        b.total-a.total ||
+        .sort((a,b) => {
 
-        b.upMovil-a.upMovil ||
 
-        b.migraciones-a.migraciones
+            // 1. Mayor UP Móvil
 
-    );
+            if(
+                b.upMovil !==
+                a.upMovil
+            ){
 
+                return (
+                    b.upMovil -
+                    a.upMovil
+                );
+
+            }
+
+
+            // 2. Mayor Migraciones
+
+            if(
+                b.migraciones !==
+                a.migraciones
+            ){
+
+                return (
+                    b.migraciones -
+                    a.migraciones
+                );
+
+            }
+
+
+            // 3. Mayor UP Hogar
+
+            return (
+                b.upHogar -
+                a.upHogar
+            );
+
+        });
 
 }
 
@@ -593,6 +835,13 @@ function calcularRankingSupervisor(lista){
 
 function restaurarVentas() {
 
-    ventas = structuredClone(ventasOriginales);
+    ventas = structuredClone(
+        ventasOriginales
+    );
+
+    ventasValidas =
+        filtrarVentasValidas(
+            ventas
+        );
 
 }

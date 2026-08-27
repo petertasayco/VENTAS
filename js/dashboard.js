@@ -33,6 +33,8 @@ async function iniciar() {
 
         mostrarUltimaActualizacion();
 
+        // IMPORTANTE:
+        // El dashboard inicia solamente con ventas válidas
         datosFiltrados = [...ventasValidas];
 
         await cargarCombos();
@@ -68,7 +70,10 @@ function eventos() {
 
     document
         .getElementById("btnFiltrar")
-        ?.addEventListener("click", aplicarFiltros);
+        ?.addEventListener(
+            "click",
+            aplicarFiltros
+        );
 
 }
 
@@ -98,7 +103,25 @@ async function cargarCombos() {
 
 function aplicarFiltros() {
 
-    datosFiltrados = filtrarVentas(ventas);
+    /*
+     * IMPORTANTE:
+     *
+     * Partimos de ventasValidas.
+     *
+     * Así nunca entran:
+     *
+     * ❌ CANCELADO
+     * ❌ NEGADO sin COMPLETADO
+     *
+     * Y sí entran:
+     *
+     * ✅ APROBADO
+     * ✅ PENDIENTE BIOMETRIA
+     * ✅ NEGADO + COMPLETADO
+     */
+
+    datosFiltrados =
+        filtrarVentas(ventasValidas);
 
     actualizarDashboard();
 
@@ -130,19 +153,36 @@ function actualizarDashboard() {
 
 function actualizarKPIs() {
 
-    const kpi = obtenerKPIs(datosFiltrados);
+    const kpi =
+        obtenerKPIs(datosFiltrados);
 
-    document.getElementById("kpiMovil").textContent =
-        formatearDinero(kpi.upMovil);
 
-    document.getElementById("kpiMigraciones").textContent =
-        kpi.migraciones;
+    document
+        .getElementById("kpiMovil")
+        .textContent =
+            formatearDinero(
+                kpi.upMovil
+            );
 
-    document.getElementById("kpiHogar").textContent =
-        formatearDinero(kpi.upHogar);
 
-    document.getElementById("kpiVentas").textContent =
-        kpi.ventas;
+    document
+        .getElementById("kpiMigraciones")
+        .textContent =
+            kpi.migraciones;
+
+
+    document
+        .getElementById("kpiHogar")
+        .textContent =
+            formatearDinero(
+                kpi.upHogar
+            );
+
+
+    document
+        .getElementById("kpiVentas")
+        .textContent =
+            kpi.ventas;
 
 }
 
@@ -153,43 +193,69 @@ function actualizarKPIs() {
 
 function dibujarRankingSupervisores() {
 
-    const tbody = document.getElementById("tablaSupervisores");
+    const tbody =
+        document.getElementById(
+            "tablaSupervisores"
+        );
+
 
     if (!tbody) return;
 
-    const ranking = calcularRankingSupervisor(datosFiltrados).slice(0, 10);
+
+    const ranking =
+
+        calcularRankingSupervisor(
+            datosFiltrados
+        )
+
+        .slice(0, 10);
+
 
     let html = "";
 
-    ranking.forEach((item, index) => {
 
-        html += `
+    ranking.forEach(
+        (item, index) => {
 
-        <tr>
+            html += `
 
-            <td>${index + 1}</td>
+            <tr>
 
-            <td>
+                <td>
+                    ${index + 1}
+                </td>
 
-                <a href="supervisor.html?id=${encodeURIComponent(item.nombre)}">
+                <td>
 
-                    ${item.nombre}
+                    <a
+                        href="supervisor.html?id=${encodeURIComponent(item.nombre)}"
+                    >
 
-                </a>
+                        ${item.nombre}
 
-            </td>
+                    </a>
 
-            <td>${formatearDinero(item.upMovil)}</td>
+                </td>
 
-            <td>${item.migraciones}</td>
+                <td>
+                    ${formatearDinero(item.upMovil)}
+                </td>
 
-            <td>${formatearDinero(item.upHogar)}</td>
+                <td>
+                    ${item.migraciones}
+                </td>
 
-        </tr>
+                <td>
+                    ${formatearDinero(item.upHogar)}
+                </td>
 
-        `;
+            </tr>
 
-    });
+            `;
+
+        }
+    );
+
 
     tbody.innerHTML = html;
 
@@ -202,43 +268,69 @@ function dibujarRankingSupervisores() {
 
 function dibujarRankingAsesores() {
 
-    const tbody = document.getElementById("tablaAsesores");
+    const tbody =
+        document.getElementById(
+            "tablaAsesores"
+        );
+
 
     if (!tbody) return;
 
-    const ranking = calcularRankingAsesor(datosFiltrados).slice(0, 10);
+
+    const ranking =
+
+        calcularRankingAsesor(
+            datosFiltrados
+        )
+
+        .slice(0, 10);
+
 
     let html = "";
 
-    ranking.forEach((item, index) => {
 
-        html += `
+    ranking.forEach(
+        (item, index) => {
 
-        <tr>
+            html += `
 
-            <td>${index + 1}</td>
+            <tr>
 
-            <td>
+                <td>
+                    ${index + 1}
+                </td>
 
-                <a href="asesor.html?id=${encodeURIComponent(item.nombre)}">
+                <td>
 
-                    ${item.nombre}
+                    <a
+                        href="asesor.html?id=${encodeURIComponent(item.nombre)}"
+                    >
 
-                </a>
+                        ${item.nombre}
 
-            </td>
+                    </a>
 
-            <td>${formatearDinero(item.upMovil)}</td>
+                </td>
 
-            <td>${item.migraciones}</td>
+                <td>
+                    ${formatearDinero(item.upMovil)}
+                </td>
 
-            <td>${formatearDinero(item.upHogar)}</td>
+                <td>
+                    ${item.migraciones}
+                </td>
 
-        </tr>
+                <td>
+                    ${formatearDinero(item.upHogar)}
+                </td>
 
-        `;
+            </tr>
 
-    });
+            `;
+
+        }
+    );
+
 
     tbody.innerHTML = html;
 
@@ -251,11 +343,23 @@ function dibujarRankingAsesores() {
 
 function dibujarGraficoSupervisores() {
 
-    const canvas = document.getElementById("graficoSupervisores");
+    const canvas =
+        document.getElementById(
+            "graficoSupervisores"
+        );
+
 
     if (!canvas) return;
 
-    const ranking = calcularRankingSupervisor(datosFiltrados).slice(0, 10);
+
+    const ranking =
+
+        calcularRankingSupervisor(
+            datosFiltrados
+        )
+
+        .slice(0, 10);
+
 
     if (graficoSupervisor) {
 
@@ -263,53 +367,72 @@ function dibujarGraficoSupervisores() {
 
     }
 
-    graficoSupervisor = new Chart(canvas, {
 
-        type: "bar",
+    graficoSupervisor = new Chart(
+        canvas,
+        {
 
-        data: {
+            type: "bar",
 
-            labels: ranking.map(x => x.nombre),
+            data: {
 
-            datasets: [
+                labels:
+                    ranking.map(
+                        x => x.nombre
+                    ),
 
-                {
+                datasets: [
 
-                    label: "Upgrade Móvil",
+                    {
 
-                    data: ranking.map(x => x.upMovil)
+                        label:
+                            "Upgrade Móvil",
 
-                },
+                        data:
+                            ranking.map(
+                                x => x.upMovil
+                            )
 
-                {
+                    },
 
-                    label: "Migraciones",
+                    {
 
-                    data: ranking.map(x => x.migraciones)
+                        label:
+                            "Migraciones",
 
-                },
+                        data:
+                            ranking.map(
+                                x => x.migraciones
+                            )
 
-                {
+                    },
 
-                    label: "Upgrade Hogar",
+                    {
 
-                    data: ranking.map(x => x.upHogar)
+                        label:
+                            "Upgrade Hogar",
 
-                }
+                        data:
+                            ranking.map(
+                                x => x.upHogar
+                            )
 
-            ]
+                    }
 
-        },
+                ]
 
-        options: {
+            },
 
-            responsive: true,
+            options: {
 
-            maintainAspectRatio: false
+                responsive: true,
+
+                maintainAspectRatio: false
+
+            }
 
         }
-
-    });
+    );
 
 }
 
@@ -320,11 +443,23 @@ function dibujarGraficoSupervisores() {
 
 function dibujarGraficoAsesores() {
 
-    const canvas = document.getElementById("graficoAsesores");
+    const canvas =
+        document.getElementById(
+            "graficoAsesores"
+        );
+
 
     if (!canvas) return;
 
-    const ranking = calcularRankingAsesor(datosFiltrados).slice(0, 10);
+
+    const ranking =
+
+        calcularRankingAsesor(
+            datosFiltrados
+        )
+
+        .slice(0, 10);
+
 
     if (graficoAsesor) {
 
@@ -332,52 +467,71 @@ function dibujarGraficoAsesores() {
 
     }
 
-    graficoAsesor = new Chart(canvas, {
 
-        type: "bar",
+    graficoAsesor = new Chart(
+        canvas,
+        {
 
-        data: {
+            type: "bar",
 
-            labels: ranking.map(x => x.nombre),
+            data: {
 
-            datasets: [
+                labels:
+                    ranking.map(
+                        x => x.nombre
+                    ),
 
-                {
+                datasets: [
 
-                    label: "Upgrade Móvil",
+                    {
 
-                    data: ranking.map(x => x.upMovil)
+                        label:
+                            "Upgrade Móvil",
 
-                },
+                        data:
+                            ranking.map(
+                                x => x.upMovil
+                            )
 
-                {
+                    },
 
-                    label: "Migraciones",
+                    {
 
-                    data: ranking.map(x => x.migraciones)
+                        label:
+                            "Migraciones",
 
-                },
+                        data:
+                            ranking.map(
+                                x => x.migraciones
+                            )
 
-                {
+                    },
 
-                    label: "Upgrade Hogar",
+                    {
 
-                    data: ranking.map(x => x.upHogar)
+                        label:
+                            "Upgrade Hogar",
 
-                }
+                        data:
+                            ranking.map(
+                                x => x.upHogar
+                            )
 
-            ]
+                    }
 
-        },
+                ]
 
-        options: {
+            },
 
-            responsive: true,
+            options: {
 
-            maintainAspectRatio: false
+                responsive: true,
+
+                maintainAspectRatio: false
+
+            }
 
         }
-
-    });
+    );
 
 }

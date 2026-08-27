@@ -18,7 +18,6 @@ let chartTipos = null;
 let chartEvolucion = null;
 
 
-
 //===========================================
 // INICIO
 //===========================================
@@ -29,31 +28,23 @@ document.addEventListener(
 );
 
 
-
 async function iniciar(){
 
     try{
 
         mostrarSpinner();
 
-
         await iniciarDatos();
-
 
         mostrarUltimaActualizacion();
 
-
         obtenerAsesorURL();
-
 
         cargarAsesor();
 
-
         cargarEventos();
 
-
         actualizarVista();
-
 
     }
     catch(error){
@@ -77,7 +68,6 @@ async function iniciar(){
 }
 
 
-
 //===========================================
 // OBTENER ASESOR
 //===========================================
@@ -98,7 +88,6 @@ function obtenerAsesorURL(){
 }
 
 
-
 //===========================================
 // CARGAR DATOS
 //===========================================
@@ -115,7 +104,6 @@ function cargarAsesor(){
         [...ventasAsesor];
 
 }
-
 
 
 //===========================================
@@ -135,7 +123,6 @@ function actualizarVista(){
 }
 
 
-
 //===========================================
 // ENCABEZADO
 //===========================================
@@ -150,27 +137,48 @@ function actualizarEncabezado(){
         ventasAsesor[0];
 
 
-    document.getElementById(
-        "nombreAsesor"
-    ).textContent =
-        asesor;
+    const nombreAsesor =
+        document.getElementById(
+            "nombreAsesor"
+        );
 
 
+    if(nombreAsesor){
 
-    document.getElementById(
-        "supervisor"
-    ).textContent =
-        venta.supervisor || "-";
+        nombreAsesor.textContent =
+            asesor;
+
+    }
 
 
+    const supervisor =
+        document.getElementById(
+            "supervisor"
+        );
 
-    document.getElementById(
-        "nombreSupervisor"
-    ).textContent =
-        `Supervisor: ${venta.supervisor || "-"}`;
+
+    if(supervisor){
+
+        supervisor.textContent =
+            venta.supervisor || "-";
+
+    }
+
+
+    const nombreSupervisor =
+        document.getElementById(
+            "nombreSupervisor"
+        );
+
+
+    if(nombreSupervisor){
+
+        nombreSupervisor.textContent =
+            `Supervisor: ${venta.supervisor || "-"}`;
+
+    }
 
 }
-
 
 
 //===========================================
@@ -179,41 +187,102 @@ function actualizarEncabezado(){
 
 function dibujarKPIs(){
 
+    /*
+     * Los KPIs utilizan obtenerKPIs()
+     *
+     * obtenerKPIs() utiliza esVentaValida()
+     *
+     * Por lo tanto:
+     *
+     * APROBADO              → CUENTA
+     * PENDIENTE BIOMETRIA   → CUENTA
+     * NEGADO + COMPLETADA   → CUENTA
+     * CANCELADA             → NO CUENTA
+     */
+
+
     const kpi =
         obtenerKPIs(
             ventasAsesor
         );
 
 
-    document.getElementById("kpiMovil").textContent =
-        formatearDinero(
-            kpi.upMovil
+    const kpiMovil =
+        document.getElementById(
+            "kpiMovil"
         );
 
 
-    document.getElementById("kpiHogar").textContent =
-        formatearDinero(
-            kpi.upHogar
+    if(kpiMovil){
+
+        kpiMovil.textContent =
+            formatearDinero(
+                kpi.upMovil
+            );
+
+    }
+
+
+    const kpiHogar =
+        document.getElementById(
+            "kpiHogar"
         );
 
 
-    document.getElementById("kpiMigraciones").textContent =
-        kpi.migraciones;
+    if(kpiHogar){
+
+        kpiHogar.textContent =
+            formatearDinero(
+                kpi.upHogar
+            );
+
+    }
 
 
-
-    document.getElementById("kpiVentas").textContent =
-        kpi.ventas;
-
-
-
-    document.getElementById("kpiComision").textContent =
-        formatearDinero(
-            kpi.total
+    const kpiMigraciones =
+        document.getElementById(
+            "kpiMigraciones"
         );
+
+
+    if(kpiMigraciones){
+
+        kpiMigraciones.textContent =
+            kpi.migraciones;
+
+    }
+
+
+    const kpiVentas =
+        document.getElementById(
+            "kpiVentas"
+        );
+
+
+    if(kpiVentas){
+
+        kpiVentas.textContent =
+            kpi.ventas;
+
+    }
+
+
+    const comision =
+        document.getElementById(
+            "kpiComision"
+        );
+
+
+    if(comision){
+
+        comision.textContent =
+            formatearDinero(
+                kpi.total
+            );
+
+    }
 
 }
-
 
 
 //===========================================
@@ -227,16 +296,12 @@ function dibujarTabla(){
             "tablaVentas"
         );
 
-
     if(!tbody)
         return;
 
+    let html = "";
 
-    let html="";
-
-
-    ventasAsesor.forEach(v=>{
-
+    ventasAsesor.forEach(v => {
 
         html += `
 
@@ -266,31 +331,46 @@ function dibujarTabla(){
                 ${formatearDinero(v.diferencia)}
             </td>
 
-
             <td>
 
                 <span class="${obtenerClaseEstado(v.estadoCredito)}">
 
-                    ${v.estadoCredito}
+                    ${v.estadoCredito || "-"}
 
                 </span>
 
             </td>
 
-
         </tr>
 
         `;
 
-
     });
 
+    tbody.innerHTML = html;
 
-    tbody.innerHTML =
-        html;
+    if(!html){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="7"
+                    style="text-align:center;"
+                >
+
+                    ${MENSAJES.sinDatos}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
 
 }
-
 
 
 //===========================================
@@ -299,18 +379,23 @@ function dibujarTabla(){
 
 function cargarEventos(){
 
-
     document
-    .getElementById("btnFiltrar")
-    ?.addEventListener(
-        "click",
-        aplicarFiltros
-    );
-
+        .getElementById("btnFiltrar")
+        ?.addEventListener(
+            "click",
+            aplicarFiltros
+        );
 
 }
 
 
+//===========================================
+// FILTROS
+//===========================================
+
+//===========================================
+// FILTROS
+//===========================================
 
 //===========================================
 // FILTROS
@@ -318,34 +403,52 @@ function cargarEventos(){
 
 function aplicarFiltros(){
 
-    ventasAsesor =
-        [...ventasOriginales];
+    console.log("========== APLICANDO FILTROS ==========");
 
+
+    //===========================================
+    // PARTIR DE LOS DATOS ORIGINALES
+    //===========================================
+
+    ventasAsesor = [...ventasOriginales];
+
+
+    console.log(
+        "Ventas originales:",
+        ventasAsesor.length
+    );
+
+
+    //===========================================
+    // OBTENER FILTROS
+    //===========================================
 
     const inicio =
-        obtenerValor(
-            "fechaInicio"
-        );
-
+        obtenerValor("fechaInicio");
 
     const fin =
-        obtenerValor(
-            "fechaFin"
-        );
-
+        obtenerValor("fechaFin");
 
     const tipo =
-        obtenerValor(
-            "tipoVenta"
-        );
+        obtenerValor("tipoVenta");
+
+    const estadoCredito =
+        obtenerValor("estadoCredito");
+
+    const estadoGlobal =
+        obtenerValor("estadoGlobal");
 
 
-    const estado =
-        obtenerValor(
-            "estadoCredito"
-        );
+    console.log("Fecha inicio:", inicio);
+    console.log("Fecha fin:", fin);
+    console.log("Tipo:", tipo);
+    console.log("Estado crédito:", estadoCredito);
+    console.log("Estado global:", estadoGlobal);
 
 
+    //===========================================
+    // FECHA INICIO
+    //===========================================
 
     if(inicio){
 
@@ -358,6 +461,9 @@ function aplicarFiltros(){
     }
 
 
+    //===========================================
+    // FECHA FIN
+    //===========================================
 
     if(fin){
 
@@ -370,6 +476,9 @@ function aplicarFiltros(){
     }
 
 
+    //===========================================
+    // TIPO DE VENTA
+    //===========================================
 
     if(tipo){
 
@@ -382,27 +491,58 @@ function aplicarFiltros(){
     }
 
 
+    //===========================================
+    // ESTADO CRÉDITO
+    //===========================================
 
-    if(estado){
+    if(estadoCredito){
 
         ventasAsesor =
             filtrarPorEstado(
                 ventasAsesor,
-                estado
+                estadoCredito
             );
 
     }
 
 
+    //===========================================
+    // ESTADO GLOBAL
+    //===========================================
 
-    dibujarKPIs();
+    if(estadoGlobal){
 
-    dibujarTabla();
+        ventasAsesor =
+            filtrarPorEstadoGlobal(
+                ventasAsesor,
+                estadoGlobal
+            );
 
-    dibujarGraficos();
+    }
+
+
+    //===========================================
+    // MOSTRAR RESULTADO
+    //===========================================
+
+    console.log(
+        "Ventas después de filtros:",
+        ventasAsesor.length
+    );
+
+
+    // Mostrar algunos estados para comprobar
+    console.log(
+        "Estados globales encontrados:",
+        [...new Set(
+            ventasAsesor.map(v => v.estadoGlobal)
+        )]
+    );
+
+
+    actualizarVista();
 
 }
-
 
 
 //===========================================
@@ -416,7 +556,6 @@ function dibujarGraficos(){
     dibujarEvolucionDiaria();
 
 }
-
 
 
 //===========================================
@@ -435,7 +574,6 @@ function dibujarVentasPorTipo(){
         return;
 
 
-
     if(chartTipos){
 
         chartTipos.destroy();
@@ -443,53 +581,70 @@ function dibujarVentasPorTipo(){
     }
 
 
-
     const datos = {
 
-        "UP Móvil":0,
+        "UP Móvil": 0,
 
-        "Migraciones":0,
+        "Migraciones": 0,
 
-        "UP Hogar":0
+        "UP Hogar": 0
 
     };
 
 
-
-    ventasAsesor.forEach(v=>{
-
-
-        const tipo =
-            (v.tipoVenta || "")
-            .toUpperCase();
-
+    /*
+     * Los gráficos solamente muestran
+     * ventas que cuentan para producción.
+     *
+     * Las CANCELADAS no participan.
+     */
 
 
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
+    ventasAsesor.forEach(v => {
 
 
+        if(!esVentaValida(v)){
 
-        if(
-            tipo.includes("UP GRADE MOVIL") &&
-            estado==="APROBADO"
-        ){
-
-            datos["UP Móvil"] +=
-                Number(v.diferencia)||0;
+            return;
 
         }
 
 
+        const tipo =
+            String(
+                v.tipoVenta || ""
+            )
+            .trim()
+            .toUpperCase();
+
+
+        const diferencia =
+            Number(
+                v.diferencia
+            ) || 0;
+
+
+        //===================================
+        // UP MOVIL
+        //===================================
 
         if(
-            tipo.includes("MIGRACION") &&
-            (
-                estado==="APROBADO" ||
-                estado==="PENDIENTE BIOMETRIA"
-            )
+            tipo === "UP GRADE MOVIL"
+        ){
+
+            datos["UP Móvil"] +=
+                diferencia;
+
+        }
+
+
+        //===================================
+        // MIGRACIONES
+        //===================================
+
+        else if(
+            tipo === "MIGRACION" ||
+            tipo === "MIGRACIONES"
         ){
 
             datos["Migraciones"]++;
@@ -497,20 +652,20 @@ function dibujarVentasPorTipo(){
         }
 
 
+        //===================================
+        // UP HOGAR
+        //===================================
 
-        if(
-            tipo.includes("UP GRADE HOGAR") &&
-            estado==="APROBADO"
+        else if(
+            tipo === "UP GRADE HOGAR"
         ){
 
             datos["UP Hogar"] +=
-                Number(v.diferencia)||0;
+                diferencia;
 
         }
 
-
     });
-
 
 
     chartTipos =
@@ -518,42 +673,50 @@ function dibujarVentasPorTipo(){
             canvas,
             {
 
-            type:"bar",
+                type: "bar",
 
-            data:{
 
-                labels:Object.keys(datos),
+                data: {
 
-                datasets:[{
+                    labels:
+                        Object.keys(datos),
 
-                    label:"Producción",
 
-                    data:Object.values(datos)
+                    datasets: [{
 
-                }]
+                        label:
+                            "Producción",
 
-            },
 
-            options:{
+                        data:
+                            Object.values(datos)
 
-                responsive:true,
+                    }]
 
-                scales:{
+                },
 
-                    y:{
 
-                        beginAtZero:true
+                options: {
+
+                    responsive: true,
+
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
 
                     }
 
                 }
 
             }
-
-        });
+        );
 
 }
-
 
 
 //===========================================
@@ -572,7 +735,6 @@ function dibujarEvolucionDiaria(){
         return;
 
 
-
     if(chartEvolucion){
 
         chartEvolucion.destroy();
@@ -580,60 +742,25 @@ function dibujarEvolucionDiaria(){
     }
 
 
-
-    const fechas={};
-
+    const fechas = {};
 
 
-    ventasAsesor.forEach(v=>{
+    /*
+     * SOLO VENTAS VÁLIDAS
+     *
+     * Las canceladas no aparecen
+     * en la evolución.
+     */
 
 
-        const estado =
-            (v.estadoCredito || "")
-            .toUpperCase()
-            .trim();
+    ventasAsesor.forEach(v => {
 
 
-        const tipo =
-            (v.tipoVenta || "")
-            .toUpperCase();
+        if(!esVentaValida(v)){
 
-
-
-        let valido=false;
-
-
-
-        if(
-            tipo.includes("UP GRADE MOVIL") &&
-            estado==="APROBADO"
-        )
-            valido=true;
-
-
-
-        if(
-            tipo.includes("UP GRADE HOGAR") &&
-            estado==="APROBADO"
-        )
-            valido=true;
-
-
-
-        if(
-            tipo.includes("MIGRACION") &&
-            (
-                estado==="APROBADO" ||
-                estado==="PENDIENTE BIOMETRIA"
-            )
-        )
-            valido=true;
-
-
-
-        if(!valido)
             return;
 
+        }
 
 
         const fecha =
@@ -642,10 +769,18 @@ function dibujarEvolucionDiaria(){
             );
 
 
+        if(!fecha){
 
-        if(!fechas[fecha])
-            fechas[fecha]=0;
+            return;
 
+        }
+
+
+        if(!fechas[fecha]){
+
+            fechas[fecha] = 0;
+
+        }
 
 
         fechas[fecha]++;
@@ -653,21 +788,40 @@ function dibujarEvolucionDiaria(){
     });
 
 
-
     const fechasOrdenadas =
+
         Object.keys(fechas)
-        .sort((a,b)=>{
 
-            return new Date(
-                a.split("/").reverse().join("-")
-            )
-            -
-            new Date(
-                b.split("/").reverse().join("-")
-            );
+            .sort((a,b) => {
 
-        });
 
+                const [diaA, mesA, anioA] =
+                    a.split("/");
+
+
+                const [diaB, mesB, anioB] =
+                    b.split("/");
+
+
+                const fechaA =
+                    new Date(
+                        anioA,
+                        mesA - 1,
+                        diaA
+                    );
+
+
+                const fechaB =
+                    new Date(
+                        anioB,
+                        mesB - 1,
+                        diaB
+                    );
+
+
+                return fechaA - fechaB;
+
+            });
 
 
     chartEvolucion =
@@ -675,44 +829,52 @@ function dibujarEvolucionDiaria(){
             canvas,
             {
 
-            type:"line",
+                type: "line",
 
-            data:{
 
-                labels:fechasOrdenadas,
+                data: {
 
-                datasets:[{
+                    labels:
+                        fechasOrdenadas,
 
-                    label:"Ventas diarias",
 
-                    data:
-                    fechasOrdenadas.map(
-                        f=>fechas[f]
-                    ),
+                    datasets: [{
 
-                    tension:0.3
+                        label:
+                            "Ventas diarias",
 
-                }]
 
-            },
+                        data:
+                            fechasOrdenadas.map(
+                                f => fechas[f]
+                            ),
 
-            options:{
 
-                responsive:true,
+                        tension: 0.3
 
-                scales:{
+                    }]
 
-                    y:{
+                },
 
-                        beginAtZero:true
+
+                options: {
+
+                    responsive: true,
+
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
 
                     }
 
                 }
 
             }
-
-        });
-
+        );
 
 }

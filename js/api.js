@@ -64,39 +64,66 @@ async function cargarVentas(forzarActualizacion = false) {
 
     ventasCache = datos.map(venta => ({
 
-        ...venta,
+    ...venta,
 
-        id: Number(venta.id),
+    id: Number(venta.id),
 
-        ID: Number(venta.ID),
+    ID: Number(venta.ID),
 
-        diferencia: Number(venta.diferencia || 0),
+    diferencia:
+        Number(venta.diferencia || 0),
 
-        diferenciaTarifa: Number(venta.diferenciaTarifa || 0),
+    diferenciaTarifa:
+        Number(venta.diferenciaTarifa || 0),
 
-        fecha: venta.fecha ? new Date(venta.fecha) : null,
+    fecha:
+        venta.fecha
+            ? new Date(venta.fecha)
+            : null,
 
-        fechaRegistro: venta["Fecha Registro"]
+    fechaRegistro:
+        venta["Fecha Registro"]
             ? new Date(venta["Fecha Registro"])
             : null,
 
-        fechaActivacion: venta.fechaActivacion
+    fechaActivacion:
+        venta.fechaActivacion
             ? new Date(venta.fechaActivacion)
             : null,
 
-        fechaCarga: venta["Fecha Carga"]
+    fechaCarga:
+        venta["Fecha Carga"]
             ? new Date(venta["Fecha Carga"])
             : null,
 
-        asesor: venta.asesor?.trim() || "",
+    asesor:
+        String(venta.asesor || "")
+            .trim(),
 
-        supervisor: venta.supervisor?.trim() || "",
+    supervisor:
+        String(venta.supervisor || "")
+            .trim(),
 
-        tipoVenta: venta.tipoVenta?.trim() || "",
+    tipoVenta:
+        String(venta.tipoVenta || "")
+            .trim()
+            .toUpperCase(),
 
-        estadoCredito: venta.estadoCredito?.trim() || ""
+    estadoCredito:
+        String(venta.estadoCredito || "")
+            .trim()
+            .toUpperCase(),
 
-    }));
+    estadoGlobal:
+        String(
+            venta["Estado Global"] ||
+            venta.estadoGlobal ||
+            ""
+        )
+        .trim()
+        .toUpperCase()
+
+}));
 
     return ventasCache;
 

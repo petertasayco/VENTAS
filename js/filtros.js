@@ -18,25 +18,66 @@ function filtrarVentas(lista) {
     const supervisor = obtenerValor("supervisor");
     const asesor = obtenerValor("asesor");
 
+    //===========================================
+    // FECHA DESDE
+    //===========================================
+
     if (fechaInicio) {
-        resultado = filtrarPorFechaInicio(resultado, fechaInicio);
+
+        resultado = filtrarPorFechaInicio(
+            resultado,
+            fechaInicio
+        );
+
     }
+
+
+    //===========================================
+    // FECHA HASTA
+    //===========================================
 
     if (fechaFin) {
-        resultado = filtrarPorFechaFin(resultado, fechaFin);
+
+        resultado = filtrarPorFechaFin(
+            resultado,
+            fechaFin
+        );
+
     }
+
+
+    //===========================================
+    // SUPERVISOR
+    //===========================================
 
     if (supervisor) {
-        resultado = filtrarPorSupervisor(resultado, supervisor);
+
+        resultado = filtrarPorSupervisor(
+            resultado,
+            supervisor
+        );
+
     }
 
+
+    //===========================================
+    // ASESOR
+    //===========================================
+
     if (asesor) {
-        resultado = filtrarPorAsesor(resultado, asesor);
+
+        resultado = filtrarPorAsesor(
+            resultado,
+            asesor
+        );
+
     }
+
 
     return resultado;
 
 }
+
 
 
 //===========================================
@@ -45,17 +86,23 @@ function filtrarVentas(lista) {
 
 function filtrarPorFechaInicio(lista, fecha) {
 
-    const inicio = new Date(fecha);
-
     return lista.filter(v => {
 
-        if (!v.fecha) return false;
+        const fechaVenta =
+            obtenerFechaCalendario(
+                v.fechaActivacion || v.fecha
+            );
 
-        return new Date(obtenerFecha(v.fecha)) >= inicio;
+        if (!fechaVenta) {
+            return false;
+        }
+
+        return fechaVenta >= fecha;
 
     });
 
 }
+
 
 
 //===========================================
@@ -64,126 +111,303 @@ function filtrarPorFechaInicio(lista, fecha) {
 
 function filtrarPorFechaFin(lista, fecha) {
 
-    const fin = new Date(fecha);
-
     return lista.filter(v => {
 
-        if (!v.fecha) return false;
+        const fechaVenta =
+            obtenerFechaCalendario(
+                v.fechaActivacion || v.fecha
+            );
 
-        return new Date(obtenerFecha(v.fecha)) <= fin;
+        if (!fechaVenta) {
+            return false;
+        }
+
+        return fechaVenta <= fecha;
 
     });
 
 }
 
 
+
+//===========================================
+// OBTENER FECHA CALENDARIO
+//===========================================
+//
+// IMPORTANTE:
+//
+// NO usamos toISOString()
+// para evitar problemas UTC.
+//
+//===========================================
+
+function obtenerFechaCalendario(fecha) {
+
+    if (!fecha) {
+        return "";
+    }
+
+
+    //===========================================
+    // SI YA ES DATE
+    //===========================================
+
+    if (fecha instanceof Date) {
+
+        if (isNaN(fecha.getTime())) {
+            return "";
+        }
+
+
+        const año =
+            fecha.getFullYear();
+
+        const mes =
+            String(
+                fecha.getMonth() + 1
+            ).padStart(2, "0");
+
+        const dia =
+            String(
+                fecha.getDate()
+            ).padStart(2, "0");
+
+
+        return `${año}-${mes}-${dia}`;
+
+    }
+
+
+    //===========================================
+    // TEXTO
+    //===========================================
+
+    const texto =
+        String(fecha).trim();
+
+
+    //===========================================
+    // ISO
+    //===========================================
+    //
+    // Ejemplo:
+    //
+    // 2026-08-01T05:00:00.000Z
+    //
+    // Tomamos directamente 2026-08-01.
+    //
+    //===========================================
+
+    if (
+        texto.length >= 10 &&
+        /^\d{4}-\d{2}-\d{2}/.test(texto)
+    ) {
+
+        return texto.substring(0, 10);
+
+    }
+
+
+    //===========================================
+    // OTROS FORMATOS
+    //===========================================
+
+    const fechaObjeto =
+        new Date(texto);
+
+
+    if (
+        isNaN(
+            fechaObjeto.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    const año =
+        fechaObjeto.getFullYear();
+
+    const mes =
+        String(
+            fechaObjeto.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            fechaObjeto.getDate()
+        ).padStart(2, "0");
+
+
+    return `${año}-${mes}-${dia}`;
+
+}
+
+
+
 //===========================================
 // SUPERVISOR
 //===========================================
 
-function filtrarPorSupervisor(lista, supervisor) {
+function filtrarPorSupervisor(
+    lista,
+    supervisor
+) {
 
-    supervisor = supervisor.trim().toUpperCase();
+    supervisor =
+        String(supervisor || "")
+            .trim()
+            .toUpperCase();
+
 
     return lista.filter(v =>
-        (v.supervisor || "")
+
+        String(v.supervisor || "")
             .trim()
             .toUpperCase() === supervisor
+
     );
 
 }
+
 
 
 //===========================================
 // ASESOR
 //===========================================
 
-function filtrarPorAsesor(lista, asesor) {
+function filtrarPorAsesor(
+    lista,
+    asesor
+) {
 
-    asesor = asesor.trim().toUpperCase();
+    asesor =
+        String(asesor || "")
+            .trim()
+            .toUpperCase();
+
 
     return lista.filter(v =>
-        (v.asesor || "")
+
+        String(v.asesor || "")
             .trim()
             .toUpperCase() === asesor
+
     );
 
 }
+
 
 
 //===========================================
 // TIPO VENTA
 //===========================================
 
-function filtrarPorTipoVenta(lista, tipo) {
+function filtrarPorTipoVenta(
+    lista,
+    tipo
+) {
+
+    tipo =
+        String(tipo || "")
+            .trim()
+            .toUpperCase();
+
 
     return lista.filter(v =>
-        v.tipoVenta === tipo
+
+        String(v.tipoVenta || "")
+            .trim()
+            .toUpperCase() === tipo
+
     );
 
 }
+
 
 
 //===========================================
 // ESTADO CRÉDITO
 //===========================================
 
-function filtrarPorEstado(lista, estado){
+function filtrarPorEstado(
+    lista,
+    estado
+) {
+
+    estado =
+        String(estado || "")
+            .trim()
+            .toUpperCase();
+
 
     return lista.filter(v =>
 
-        (v.estadoCredito || "")
-        .toUpperCase()
+        String(v.estadoCredito || "")
+            .trim()
+            .toUpperCase() === estado
+
+    );
+
+}
+
+
+
+//===========================================
+// ESTADO GLOBAL
+//===========================================
+
+function filtrarPorEstadoGlobal(
+    lista,
+    estado
+) {
+
+    estado =
+        String(estado || "")
+            .trim()
+            .toUpperCase();
+
+
+    return lista.filter(v =>
+
+        String(
+            v.estadoGlobal ||
+            v["Estado Global"] ||
+            ""
+        )
         .trim()
-        ===
-        estado
-        .toUpperCase()
-        .trim()
+        .toUpperCase() === estado
 
     );
 
 }
 
 
+
 //===========================================
-// TEXTO
+// SOLO VENTAS QUE CUENTAN
+//===========================================
+//
+// Utiliza la regla central de datos.js:
+//
+// APROBADO                  → CUENTA
+// PENDIENTE BIOMETRIA      → CUENTA
+// NEGADO + COMPLETADA      → CUENTA
+// CANCELADO                → NO CUENTA
+// CANCELADA                → NO CUENTA
+//
 //===========================================
 
-function filtrarPorTexto(lista, texto) {
-
-    texto = texto.trim().toUpperCase();
+function filtrarVentasValidas(lista) {
 
     return lista.filter(v =>
-
-        (v.asesor || "")
-            .toUpperCase()
-            .includes(texto)
-
-        ||
-
-        (v.cliente || "")
-            .toUpperCase()
-            .includes(texto)
-
+        esVentaValida(v)
     );
 
 }
 
-
-//===========================================
-// RANGO DIFERENCIA
-//===========================================
-
-function filtrarPorDiferencia(lista, minimo = 0, maximo = Infinity) {
-
-    return lista.filter(v =>
-
-        v.diferencia >= minimo &&
-        v.diferencia <= maximo
-
-    );
-
-}
 
 
 //===========================================
@@ -192,9 +416,13 @@ function filtrarPorDiferencia(lista, minimo = 0, maximo = Infinity) {
 
 function soloAprobados(lista) {
 
-    return filtrarPorEstado(lista, ESTADOS.APROBADO);
+    return filtrarPorEstado(
+        lista,
+        "APROBADO"
+    );
 
 }
+
 
 
 //===========================================
@@ -203,9 +431,118 @@ function soloAprobados(lista) {
 
 function soloNegados(lista) {
 
-    return filtrarPorEstado(lista, ESTADOS.NEGADO);
+    return filtrarPorEstado(
+        lista,
+        "NEGADO"
+    );
 
 }
+
+
+
+//===========================================
+// SOLO PENDIENTE BIOMETRIA
+//===========================================
+
+function soloPendienteBiometria(lista) {
+
+    return filtrarPorEstado(
+        lista,
+        "PENDIENTE BIOMETRIA"
+    );
+
+}
+
+
+
+//===========================================
+// SOLO COMPLETADAS
+//===========================================
+
+function soloCompletadas(lista) {
+
+    return filtrarPorEstadoGlobal(
+        lista,
+        "COMPLETADA"
+    );
+
+}
+
+
+
+//===========================================
+// SOLO CANCELADAS
+//===========================================
+
+function soloCanceladas(lista) {
+
+    return filtrarPorEstadoGlobal(
+        lista,
+        "CANCELADA"
+    );
+
+}
+
+
+
+//===========================================
+// TEXTO
+//===========================================
+
+function filtrarPorTexto(
+    lista,
+    texto
+) {
+
+    texto =
+        String(texto || "")
+            .trim()
+            .toUpperCase();
+
+
+    return lista.filter(v =>
+
+        String(v.asesor || "")
+            .toUpperCase()
+            .includes(texto)
+
+        ||
+
+        String(v.cliente || "")
+            .toUpperCase()
+            .includes(texto)
+
+    );
+
+}
+
+
+
+//===========================================
+// RANGO DIFERENCIA
+//===========================================
+
+function filtrarPorDiferencia(
+    lista,
+    minimo = 0,
+    maximo = Infinity
+) {
+
+    return lista.filter(v => {
+
+        const diferencia =
+            Number(v.diferencia) || 0;
+
+
+        return (
+            diferencia >= minimo &&
+            diferencia <= maximo
+        );
+
+    });
+
+}
+
 
 
 //===========================================
@@ -219,11 +556,16 @@ function limpiarFiltros() {
         "fechaInicio",
         "fechaFin",
         "supervisor",
-        "asesor"
+        "asesor",
+        "tipoVenta",
+        "estadoCredito",
+        "estadoGlobal"
 
     ].forEach(id => {
 
-        const elemento = document.getElementById(id);
+        const elemento =
+            document.getElementById(id);
+
 
         if (elemento) {
 
@@ -236,13 +578,16 @@ function limpiarFiltros() {
 }
 
 
+
 //===========================================
 // OBTENER VALOR
 //===========================================
 
 function obtenerValor(id) {
 
-    const elemento = document.getElementById(id);
+    const elemento =
+        document.getElementById(id);
+
 
     return elemento
         ? elemento.value.trim()
@@ -251,18 +596,18 @@ function obtenerValor(id) {
 }
 
 
+
 //===========================================
 // FECHA YYYY-MM-DD
+//===========================================
+//
+// Compatibilidad con otras partes
+// del proyecto.
+//
 //===========================================
 
 function obtenerFecha(fecha) {
 
-    if (!fecha) return "";
-
-    const f = new Date(fecha);
-
-    if (isNaN(f)) return "";
-
-    return f.toISOString().split("T")[0];
+    return obtenerFechaCalendario(fecha);
 
 }

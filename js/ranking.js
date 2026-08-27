@@ -10,6 +10,7 @@
 //===========================================
 
 let rankingActual = [];
+
 let paginaActual = 1;
 
 
@@ -18,6 +19,7 @@ let paginaActual = 1;
 //===========================================
 
 document.addEventListener("DOMContentLoaded", iniciar);
+
 
 async function iniciar() {
 
@@ -29,19 +31,29 @@ async function iniciar() {
 
         mostrarUltimaActualizacion();
 
-        rankingActual = calcularRankingAsesor(ventasValidas);
+        // IMPORTANTE:
+        // El ranking inicia solamente con ventas válidas
+        rankingActual =
+            calcularRankingAsesor(ventasValidas);
 
         cargarEventos();
 
         actualizarRanking();
 
-    } catch (error) {
+    }
 
-        console.error(error);
+    catch (error) {
+
+        console.error(
+            "Error iniciando ranking:",
+            error
+        );
 
         alert(MENSAJES.error);
 
-    } finally {
+    }
+
+    finally {
 
         ocultarSpinner();
 
@@ -56,23 +68,52 @@ async function iniciar() {
 
 function cargarEventos() {
 
-    document.getElementById("btnFiltrar")
-        ?.addEventListener("click", aplicarFiltros);
+    document
+        .getElementById("btnFiltrar")
+        ?.addEventListener(
+            "click",
+            aplicarFiltros
+        );
 
-    document.getElementById("buscar")
-        ?.addEventListener("input", buscarAsesor);
 
-    document.getElementById("btnAnterior")
-        ?.addEventListener("click", paginaAnterior);
+    document
+        .getElementById("buscar")
+        ?.addEventListener(
+            "input",
+            buscarAsesor
+        );
 
-    document.getElementById("btnSiguiente")
-        ?.addEventListener("click", siguientePagina);
 
-    document.getElementById("btnExcel")
-        ?.addEventListener("click", exportarExcel);
+    document
+        .getElementById("btnAnterior")
+        ?.addEventListener(
+            "click",
+            paginaAnterior
+        );
 
-    document.getElementById("btnPDF")
-        ?.addEventListener("click", exportarPDF);
+
+    document
+        .getElementById("btnSiguiente")
+        ?.addEventListener(
+            "click",
+            siguientePagina
+        );
+
+
+    document
+        .getElementById("btnExcel")
+        ?.addEventListener(
+            "click",
+            exportarExcel
+        );
+
+
+    document
+        .getElementById("btnPDF")
+        ?.addEventListener(
+            "click",
+            exportarPDF
+        );
 
 }
 
@@ -83,11 +124,32 @@ function cargarEventos() {
 
 function aplicarFiltros() {
 
-    const datos = filtrarVentas(ventas);
+    /*
+     * IMPORTANTE:
+     *
+     * Los filtros se aplican sobre ventasValidas.
+     *
+     * Así nunca entran al ranking:
+     *
+     * CANCELADO
+     * NEGADO no COMPLETADO
+     * otros estados no válidos
+     */
 
-    rankingActual = calcularRankingAsesor(datos);
+    const datos =
+        filtrarVentas(
+            ventasValidas
+        );
+
+
+    rankingActual =
+        calcularRankingAsesor(
+            datos
+        );
+
 
     paginaActual = 1;
+
 
     actualizarRanking();
 
@@ -95,21 +157,43 @@ function aplicarFiltros() {
 
 
 //===========================================
-// BUSCAR
+// BUSCAR ASESOR
 //===========================================
 
 function buscarAsesor(e) {
 
-    const texto = e.target.value.trim().toUpperCase();
+    const texto =
+        e.target.value
+            .trim()
+            .toUpperCase();
 
-    const datos = filtrarVentas(ventas);
 
-    rankingActual = calcularRankingAsesor(datos)
-        .filter(item =>
-            item.nombre.toUpperCase().includes(texto)
+    /*
+     * La búsqueda también parte
+     * de ventas válidas.
+     */
+
+    const datos =
+        filtrarVentas(
+            ventasValidas
         );
 
+
+    rankingActual =
+        calcularRankingAsesor(
+            datos
+        )
+        .filter(item =>
+
+            item.nombre
+                .toUpperCase()
+                .includes(texto)
+
+        );
+
+
     paginaActual = 1;
+
 
     actualizarRanking();
 
@@ -137,17 +221,33 @@ function actualizarRanking() {
 
 function actualizarResumen() {
 
-    const total = document.getElementById("totalAsesores");
-    const primero = document.getElementById("primerLugar");
+    const total =
+        document.getElementById(
+            "totalAsesores"
+        );
+
+
+    const primero =
+        document.getElementById(
+            "primerLugar"
+        );
+
 
     if (total) {
-        total.textContent = rankingActual.length;
+
+        total.textContent =
+            rankingActual.length;
+
     }
 
+
     if (primero) {
-        primero.textContent = rankingActual.length
-            ? rankingActual[0].nombre
-            : "-";
+
+        primero.textContent =
+            rankingActual.length
+                ? rankingActual[0].nombre
+                : "-";
+
     }
 
 }
@@ -159,64 +259,139 @@ function actualizarResumen() {
 
 function dibujarTabla() {
 
-    const tbody = document.getElementById("tablaRanking");
+    const tbody =
+        document.getElementById(
+            "tablaRanking"
+        );
 
-    if (!tbody) return;
+
+    if (!tbody) {
+        return;
+    }
+
 
     tbody.innerHTML = "";
+
 
     if (!rankingActual.length) {
 
         tbody.innerHTML = `
+
             <tr>
-                <td colspan="7" style="text-align:center;">
+
+                <td
+                    colspan="7"
+                    style="text-align:center;"
+                >
+
                     ${MENSAJES.sinDatos}
+
                 </td>
+
             </tr>
+
         `;
 
         return;
 
     }
 
-    const inicio = (paginaActual - 1) * PAGINACION.filasPorPagina;
-    const fin = inicio + PAGINACION.filasPorPagina;
+
+    const inicio =
+        (paginaActual - 1) *
+        PAGINACION.filasPorPagina;
+
+
+    const fin =
+        inicio +
+        PAGINACION.filasPorPagina;
+
 
     let html = "";
 
+
     rankingActual
         .slice(inicio, fin)
-        .forEach((item, index) => {
+        .forEach(
+            (item, index) => {
 
-            const posicion = inicio + index + 1;
+                const posicion =
+                    inicio +
+                    index +
+                    1;
 
-            html += `
 
-            <tr class="${claseTop(posicion)}">
+                html += `
 
-                <td>${medalla(posicion)}</td>
+                <tr
+                    class="${claseTop(posicion)}"
+                >
 
-                <td>
-                    <a href="asesor.html?id=${encodeURIComponent(item.nombre)}">
-                        ${item.nombre}
-                    </a>
-                </td>
+                    <td>
+                        ${medalla(posicion)}
+                    </td>
 
-                <td>${item.supervisor || "-"}</td>
 
-                <td>${formatearDinero(item.upMovil)}</td>
+                    <td>
 
-                <td>${item.migraciones}</td>
+                        <a
+                            href="asesor.html?id=${encodeURIComponent(item.nombre)}"
+                        >
 
-                <td>${formatearDinero(item.upHogar)}</td>
+                            ${item.nombre}
 
-                <td>${formatearDinero(item.total)}</td>
+                        </a>
 
-            </tr>
+                    </td>
 
-            `;
 
-        });
+                    <td>
+
+                        ${item.supervisor || "-"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${formatearDinero(
+                            item.upMovil
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${item.migraciones}
+
+                    </td>
+
+
+                    <td>
+
+                        ${formatearDinero(
+                            item.upHogar
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        ${formatearDinero(
+                            item.total
+                        )}
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            }
+        );
+
 
     tbody.innerHTML = html;
 
@@ -229,23 +404,77 @@ function dibujarTabla() {
 
 function actualizarPaginacion() {
 
-    const totalPaginas = Math.max(
-        1,
-        Math.ceil(rankingActual.length / PAGINACION.filasPorPagina)
-    );
+    const totalPaginas =
+        Math.max(
 
-    document.getElementById("paginaActual").textContent =
-        `${paginaActual} / ${totalPaginas}`;
+            1,
 
-    const btnAnterior = document.getElementById("btnAnterior");
-    const btnSiguiente = document.getElementById("btnSiguiente");
+            Math.ceil(
 
-    if (btnAnterior) {
-        btnAnterior.disabled = paginaActual === 1;
+                rankingActual.length /
+                PAGINACION.filasPorPagina
+
+            )
+
+        );
+
+
+    /*
+     * Por seguridad, evitamos que
+     * la página actual quede fuera
+     * del rango.
+     */
+
+    if (
+        paginaActual >
+        totalPaginas
+    ) {
+
+        paginaActual =
+            totalPaginas;
+
     }
 
+
+    const pagina =
+        document.getElementById(
+            "paginaActual"
+        );
+
+
+    if (pagina) {
+
+        pagina.textContent =
+            `${paginaActual} / ${totalPaginas}`;
+
+    }
+
+
+    const btnAnterior =
+        document.getElementById(
+            "btnAnterior"
+        );
+
+
+    const btnSiguiente =
+        document.getElementById(
+            "btnSiguiente"
+        );
+
+
+    if (btnAnterior) {
+
+        btnAnterior.disabled =
+            paginaActual === 1;
+
+    }
+
+
     if (btnSiguiente) {
-        btnSiguiente.disabled = paginaActual === totalPaginas;
+
+        btnSiguiente.disabled =
+            paginaActual === totalPaginas;
+
     }
 
 }
@@ -257,16 +486,33 @@ function actualizarPaginacion() {
 
 function siguientePagina() {
 
-    const totalPaginas = Math.max(
-        1,
-        Math.ceil(rankingActual.length / PAGINACION.filasPorPagina)
-    );
+    const totalPaginas =
+        Math.max(
 
-    if (paginaActual >= totalPaginas) {
+            1,
+
+            Math.ceil(
+
+                rankingActual.length /
+                PAGINACION.filasPorPagina
+
+            )
+
+        );
+
+
+    if (
+        paginaActual >=
+        totalPaginas
+    ) {
+
         return;
+
     }
 
+
     paginaActual++;
+
 
     actualizarRanking();
 
@@ -280,10 +526,14 @@ function siguientePagina() {
 function paginaAnterior() {
 
     if (paginaActual <= 1) {
+
         return;
+
     }
 
+
     paginaActual--;
+
 
     actualizarRanking();
 
@@ -296,9 +546,26 @@ function paginaAnterior() {
 
 function claseTop(posicion) {
 
-    if (posicion === 1) return "top1";
-    if (posicion === 2) return "top2";
-    if (posicion === 3) return "top3";
+    if (posicion === 1) {
+
+        return "top1";
+
+    }
+
+
+    if (posicion === 2) {
+
+        return "top2";
+
+    }
+
+
+    if (posicion === 3) {
+
+        return "top3";
+
+    }
+
 
     return "";
 
